@@ -1,0 +1,94 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="dataLoadManager" class="edu.mcw.rgd.dataload.UniProtDataLoadManager">
+	    <property name="fileParser" ref="fileParser"/>
+	    <property name="dataValidation" ref="dataValidation"/>
+	    <property name="uniProtDAO" ref="dbDao" />
+	    <property name="rgdLogger" ref="rgdLogger"/>
+        <property name="version" value="UniProtKB pipeline build 1.8.12 - as of Sep 28, 2018" />
+        <property name="proteinLoader" ref="proteinLoader" />
+	</bean>
+	
+	<bean id="fileParser" class="edu.mcw.rgd.dataload.UniProtFileParser">
+        <property name="ftpServer" value="ftp.uniprot.org"/>
+        <property name="ftpDirectory" value="/pub/databases/uniprot/current_release/knowledgebase/taxonomic_divisions"/>
+
+        <property name="swissProtFileNames">
+            <map>
+                <entry key="Human" value="uniprot_sprot_human.dat.gz"/>
+                <entry key="Mouse" value="uniprot_sprot_rodents.dat.gz"/>
+                <entry key="Rat" value="uniprot_sprot_rodents.dat.gz"/>
+                <entry key="Chinchilla" value="uniprot_sprot_rodents.dat.gz"/>
+                <entry key="Squirrel" value="uniprot_sprot_rodents.dat.gz"/>
+                <entry key="Dog" value="uniprot_sprot_mammals.dat.gz"/>
+                <entry key="Bonobo" value="uniprot_sprot_mammals.dat.gz"/>
+            </map>
+        </property>
+        <property name="tremblFileNames">
+            <map>
+                <entry key="Human" value="uniprot_trembl_human.dat.gz"/>
+                <entry key="Mouse" value="uniprot_trembl_rodents.dat.gz"/>
+                <entry key="Rat" value="uniprot_trembl_rodents.dat.gz"/>
+                <entry key="Chinchilla" value="uniprot_trembl_rodents.dat.gz"/>
+                <entry key="Squirrel" value="uniprot_trembl_rodents.dat.gz"/>
+                <entry key="Dog" value="uniprot_trembl_mammals.dat.gz"/>
+                <entry key="Bonobo" value="uniprot_trembl_mammals.dat.gz"/>
+            </map>
+        </property>
+
+        <property name="downloadMaxRetryCount" value="5"/>
+        <property name="downloadRetryInterval" value="200" />
+	    <property name="dataValidation" ref="dataValidation"/>
+        <property name="accIdDumpFile" value="sprot_acc_id" />
+	</bean>
+	
+	<bean id="dataValidation" class="edu.mcw.rgd.dataload.UniProtDataValidation">
+	    <property name="dbDao" ref="dbDao"/>
+        <property name="activeXdbIdMap">
+            <map>
+                <entry key="EnsemblG" value="20"/>
+                <entry key="EnsemblP" value="27"/>
+                <entry key="EnsemblT" value="42"/>
+                <entry key="Gene3D" value="39"/>
+                <entry key="GermOnline" value="18"/>
+                <entry key="InterPro" value="29"/>
+                <!-- loading of IPI ids discontinued as of May 23, 2013  - per RGDD-723
+                <entry key="IPI" value="25"></entry>
+                -->
+                <entry key="KEGG" value="17"/>
+                <entry key="PANTHER" value="34"/>
+                <entry key="Pfam" value="30"/>
+                <entry key="PIRSF" value="36"/>
+                <entry key="PRINTS" value="31"/>
+                <entry key="PROSITE" value="33"/>
+                <entry key="ProDom" value="32"/>
+                <!-- loading of RefSeq proteins discontinued as of Aug 30, 2012  - per RGDD-558
+                <entry key="RefSeq" value="7"></entry>
+                -->
+                <entry key="SMART" value="35"/>
+                <entry key="SUPFAM" value="38"/>
+                <entry key="TIGRFAMs" value="37"/>
+                <entry key="UniProt" value="14"/>
+                <entry key="UniProtSecondary" value="60"/>
+            </map>
+        </property>                                    
+	</bean>
+
+    <bean id="proteinLoader" class="edu.mcw.rgd.dataload.ProteinLoader">
+        <property name="version" value="Protein Loader ver 1.2.1,  Aug 3, 2018"/>
+        <property name="assocType" value="protein_to_gene" />
+        <property name="sequenceType" value="uniprot_seq" />
+    </bean>
+
+	<bean id="dbDao" class="edu.mcw.rgd.dataload.UniProtDAO">
+	</bean>
+
+    <bean id="rgdLogger" class="edu.mcw.rgd.log.RGDSpringLogger">
+    </bean>
+
+    <bean id="RefSeq2UniProtLoader" class="edu.mcw.rgd.dataload.Refseq2UniprotLoader">
+        <property name="mappingsFile" value="ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz"/>
+        <property name="srcPipeline" value="refseq_uniprotkb"/>
+    </bean>
+</beans>
