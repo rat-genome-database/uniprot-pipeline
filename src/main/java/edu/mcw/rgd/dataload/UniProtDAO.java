@@ -466,16 +466,13 @@ public class UniProtDAO extends AbstractDAO {
 
         _rgdId2md5.clear();
 
-        String query = "SELECT s.rgd_id,s.seq_data_md5 FROM rgd_sequences s,rgd_ids r "+
-                "WHERE s.rgd_id=r.rgd_id AND s.seq_type=? AND r.object_key="+RgdId.OBJECT_KEY_PROTEINS+" AND r.species_type_key=?";
-        for( IntStringMapQuery.MapPair pair: IntStringMapQuery.execute(this, query, seqType, speciesTypeKey) ) {
+        for( IntStringMapQuery.MapPair pair: seqDAO.getMD5ForObjectSequences(RgdId.OBJECT_KEY_PROTEINS, speciesTypeKey, seqType) ) {
 
             String prevMD5 = _rgdId2md5.put(pair.keyValue, pair.stringValue);
             if( prevMD5!=null ) {
                 throw new Exception("ERROR: multiple sequences in RGD for protein RGDID:"+pair.keyValue);
             }
         }
-        System.out.println("  --loaded md5 for "+SpeciesType.getCommonName(speciesTypeKey)+" and seq_type="+seqType+": "+_rgdId2md5.size());
     }
     static Map<Integer, String> _rgdId2md5 = new HashMap<>();
 }
