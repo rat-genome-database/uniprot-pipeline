@@ -1,7 +1,11 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
 Oct 5, 2018 - build 1.8.13
-  optimized handling of protein sequences
+  protein loader:
+    optimized handling of protein sequences
+    implemented 'consensus sequence history': older instances of protein consensus sequence;
+      these are created with seq_type = 'old_uniprot_seq' when during loading the code detects difference
+      between the incoming sequence and the sequence in rgd
 
 Sep 28, 2018 - build 1.8.12
   moved from subversion to github

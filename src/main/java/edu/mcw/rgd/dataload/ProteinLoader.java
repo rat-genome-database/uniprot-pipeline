@@ -25,6 +25,7 @@ public class ProteinLoader {
     private int speciesTypeKey;
     private String assocType;
     private String sequenceType;
+    private String oldSequenceType;
 
     public void run(List<UniProtRatRecord> records) throws Exception {
 
@@ -123,8 +124,15 @@ public class ProteinLoader {
             // see if the protein sequence is the same
             String seqIncomingMD5 = Utils.generateMD5(seqIncoming.getSeqData());
             if( !seqIncomingMD5.equals(seqInRgdMD5) ) {
-                System.out.println("ERROR: different sequence data for "+protein.getUniprotId());
-                manager.incrementCounter("  CONFLICT: different sequence data, sequence update aborted", 1);
+
+                // add new sequence
+                getDao().insertSequence(seqIncoming);
+
+                // incoming sequence differs from sequence in RGD!
+                // downgrade the old sequence to 'old_uniprot_seq'
+                getDao().changeSequenceType(seqIncoming, seqInRgdMD5, getOldSequenceType());
+
+                manager.incrementCounter("  protein-sequences updated, old_uniprot_seq created", 1);
             } else {
                 manager.incrementCounter("  protein-sequences up-to-date", 1);
             }
@@ -280,5 +288,13 @@ public class ProteinLoader {
 
     public String getSequenceType() {
         return sequenceType;
+    }
+
+    public void setOldSequenceType(String oldSequenceType) {
+        this.oldSequenceType = oldSequenceType;
+    }
+
+    public String getOldSequenceType() {
+        return oldSequenceType;
     }
 }

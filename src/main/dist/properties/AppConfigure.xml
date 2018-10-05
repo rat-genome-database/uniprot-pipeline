@@ -76,9 +76,10 @@
 	</bean>
 
     <bean id="proteinLoader" class="edu.mcw.rgd.dataload.ProteinLoader">
-        <property name="version" value="Protein Loader ver 1.2.1,  Aug 3, 2018"/>
+        <property name="version" value="Protein Loader ver 1.2.2,  Oct 5, 2018"/>
         <property name="assocType" value="protein_to_gene" />
         <property name="sequenceType" value="uniprot_seq" />
+        <property name="oldSequenceType" value="old_uniprot_seq" />
     </bean>
 
 	<bean id="dbDao" class="edu.mcw.rgd.dataload.UniProtDAO">

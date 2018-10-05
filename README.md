@@ -10,4 +10,5 @@ PROTEIN LOADER
     * the canonical protein sequences (available in the incoming data)
     are loaded with seq_type 'uniprot_seq'
     * the old protein sequences are created with seq_type 'old_uniprot_seq';
-    they are created when the incoming sequence differs from the sequence in the database
+    they are created when the incoming sequence differs from the sequence in the database;
+    sequences of type 'old_uniprot_seq' combined are considered the 'consensus sequence history'

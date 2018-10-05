@@ -457,6 +457,26 @@ public class UniProtDAO extends AbstractDAO {
         return r;
     }
 
+    public void changeSequenceType(Sequence2 seqIncoming, String md5, String newSeqType) throws Exception {
+
+        // find the old sequence object in RGD
+        List<Sequence2> seqsInRgd = getObjectSequences(seqIncoming.getRgdId(), seqIncoming.getSeqType());
+        for( Sequence2 seqInRgd: seqsInRgd ) {
+            if( seqInRgd.getSeqMD5().equals(md5) ) {
+                // found the sequence in RGD -- change its seq_type to 'oldSeqType'
+                logSequences.info("SEQ_TYPE_CHANGE: old-seq-type="+seqInRgd.getSeqType()+", new-seq-type="+newSeqType);
+                seqInRgd.setSeqType(newSeqType);
+                if( seqDAO.updateSequence(seqInRgd)!=0 ) {
+                    logSequences.info("SEQ_TYPE_CHANGE: new-seq= "+seqInRgd.dump("|"));
+                    return; // seq type changed -- nothing more to do
+                }
+
+                // no rows affected? weird
+                throw new Exception(" CONFLICT: changeSequenceType -- unexpected: 0 rows updated");
+            }
+        }
+        throw new Exception(" CONFLICT: changeSequenceType -- unexpected: cannot find a sequence in rgd");
+    }
 
     public String getMD5ForObjectSequences(int rgdId) throws Exception {
         return _rgdId2md5.get(rgdId);
