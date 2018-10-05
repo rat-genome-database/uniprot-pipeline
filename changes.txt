@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+Oct 5, 2018 - build 1.8.13
+  optimized handling of protein sequences
+
 Sep 28, 2018 - build 1.8.12
   moved from subversion to github
 

@@ -17,12 +17,6 @@ fixed matching logic to exclude self-matching (matching by UniProtKB ids brought
 deletion of UniProt id results in insertion of an 'old_protein_id' alias
 
 
-module to load PROTEINS
-  loading of protein_to_gene associations
-  loading of secondary uniprot xdb ids
-    secondary accession ids are imported as xdb ids with XDB_KEY=60
-  loading of protein sequences
-
 
 1) matching algorithm change:
   incoming data is matched to RGD data in the following order (as below);

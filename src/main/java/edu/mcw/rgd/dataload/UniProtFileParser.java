@@ -6,7 +6,6 @@ import edu.mcw.rgd.process.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
 
 /**
  * @author mtutaj
@@ -93,7 +92,7 @@ public class UniProtFileParser {
         dblog.log("starting processing of ", fileName, PipelineLogger.INFO);
 
         // open input stream
-        BufferedReader reader = new BufferedReader(new InputStreamReader(new DataInputStream(new GZIPInputStream(new FileInputStream(fileName)))));
+        BufferedReader reader = Utils.openReader(fileName);
 
         String line;
         String uniprotID = null;

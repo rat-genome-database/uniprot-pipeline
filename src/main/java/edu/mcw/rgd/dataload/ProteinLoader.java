@@ -1,6 +1,7 @@
 package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.Utils;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
@@ -27,9 +28,13 @@ public class ProteinLoader {
 
     public void run(List<UniProtRatRecord> records) throws Exception {
 
+        long time0 = System.currentTimeMillis();
+
         manager = UniProtDataLoadManager.getInstance();
 
         secondaryIdMap = getDao().getUniProtSecondaryIds(getSpeciesTypeKey(), RgdId.OBJECT_KEY_PROTEINS);
+
+        getDao().loadMD5ForProteinSequences(getSpeciesTypeKey(), getSequenceType());
 
         for( UniProtRatRecord rec: records ) {
             // get Protein object in RGD, by primary or secondary uniprot id
@@ -54,6 +59,8 @@ public class ProteinLoader {
             // handle uniprot secondary accession ids
             handleXdbIds(rec, protein);
         }
+
+        System.out.println("--PROTEIN LOADER OK, elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }
 
     Protein getProteinByUniProtId(UniProtRatRecord rec) throws Exception {
@@ -108,20 +115,19 @@ public class ProteinLoader {
         seqIncoming.setSeqData(rec.proteinSequence);
         seqIncoming.setSeqType(getSequenceType());
 
-        List<Sequence2> seqsInRgd = getDao().getObjectSequences(protein.getRgdId(), getSequenceType());
-        if( seqsInRgd.size()>1 ) {
-            throw new Exception("ERROR: multiple sequences in RGD for "+protein.getUniprotId());
-        }
-        if( seqsInRgd.isEmpty() ) {
+        String seqInRgdMD5 = getDao().getMD5ForObjectSequences(protein.getRgdId());
+        if( seqInRgdMD5==null ) {
             getDao().insertSequence(seqIncoming);
             manager.incrementCounter("  protein-sequences inserted", 1);
         } else {
             // see if the protein sequence is the same
-            Sequence2 seqInRgd = seqsInRgd.get(0);
-            if( !seqInRgd.getSeqData().equals(seqIncoming.getSeqData()) ) {
-                throw new Exception("ERROR: different sequence data for "+protein.getUniprotId());
+            String seqIncomingMD5 = Utils.generateMD5(seqIncoming.getSeqData());
+            if( !seqIncomingMD5.equals(seqInRgdMD5) ) {
+                System.out.println("ERROR: different sequence data for "+protein.getUniprotId());
+                manager.incrementCounter("  CONFLICT: different sequence data, sequence update aborted", 1);
+            } else {
+                manager.incrementCounter("  protein-sequences up-to-date", 1);
             }
-            manager.incrementCounter("  protein-sequences up-to-date", 1);
         }
     }
 
