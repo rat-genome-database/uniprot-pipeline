@@ -1,5 +1,12 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+Nov 12, 2018 - build 1.8.15
+  protein loader: relaxed handling of problems with multiple protein sequences
+    no longer throws an exception breaking the pipeline -- now prints an error via System.out
+
+Oct 15, 2018 - build 1.8.14
+  updated README.md
+
 Oct 5, 2018 - build 1.8.13
   protein loader:
     optimized handling of protein sequences
@@ -83,64 +90,42 @@ significantly revamped logic
 
 
 Mar 6, 2015 - build 1.6.5
---------------------------
-updated jars
-
+  updated jars
 
 Dec 15, 2014 - build 1.6.4
---------------------------
-updated jars; in pipeline logs totals, [IGNORED] databases are no longer listed explicitly (this info
-  is of little value and it was significantly cluttering the summary)
-
+  updated jars; in pipeline logs totals, [IGNORED] databases are no longer listed explicitly (this info
+    is of little value and it was significantly cluttering the summary)
 
 Jul 3, 2014 - build 1.6.3
--------------------------
-updated rgdcore; improved summary emails by removing redundant information
-
+  improved summary emails by removing redundant information
 
 May 23, 2014 - build 1.6.2 - per RGDD-926
-------------------------------------------
-fixed processing of AC lines: primary uniprot acc id is the first acc id on the first AC line
-  when a record had multiple AC lines, the other AC lines must be ignored;
-fixed importing of gene Ensembl ids
-updated rgdcore
-
+  fixed processing of AC lines: primary uniprot acc id is the first acc id on the first AC line
+    when a record had multiple AC lines, the other AC lines must be ignored;
+  fixed importing of gene Ensembl ids
 
 Nov 25, 2013 - build 1.6.1
-------------------------------------------
-fixed reporting of MERGED ids in ids_merged.log (logs will be significantly smaller)
-
+  fixed reporting of MERGED ids in ids_merged.log (logs will be significantly smaller)
 
 Apr 9, 2013 - build 1.6.0
-------------------------------------------
-improved logic in processing of RGD_IDS
-
+  improved logic in processing of RGD_IDS
 
 Dec 21, 2012 - build 1.5.3
-------------------------------------------
-updated rgdcore so inserts into RGD_ACC_XDB table use sequence RGD_ACC_XDB_SEQ
-
+  updated rgdcore so inserts into RGD_ACC_XDB table use sequence RGD_ACC_XDB_SEQ
 
 October 18, 2012 - build 1.5.2
-------------------------------------------
-1) added logging of inserted and deleted uniprot ids
-2) showing the pipeline run time in seconds minutes and hours instead of seconds only
-
+  1) added logging of inserted and deleted uniprot ids
+  2) showing the pipeline run time in seconds minutes and hours instead of seconds only
 
 August 30, 2012 - per jira ticket RGDD-558
-------------------------------------------
-loading of RefSeq proteins discontinued
-
+  loading of RefSeq proteins discontinued
 
 May 2012 changes - per jira ticker RGDD-473
--------------------------------------------
-generates a file with list of primary and secondary accession ids for sprot database
-
+  generates a file with list of primary and secondary accession ids for sprot database
 
 February 2012 changes - per jira ticket RGDD-344
-------------------------------------------------
-1) stricter QC logic: load protein ids only for genes of corresponding species
-2) extended processing for mouse and human: QC matches by HGNC IDs and MGI ids
-3) QC matching logic is looking for both UniProtKB ids (map_key=14) and GeneBank Protein ids (map_key=7)
-4) Pipeline logic approved by Jennifer and Liz
-5) Report extracts customized for every species
+  1) stricter QC logic: load protein ids only for genes of corresponding species
+  2) extended processing for mouse and human: QC matches by HGNC IDs and MGI ids
+  3) QC matching logic is looking for both UniProtKB ids (map_key=14) and GeneBank Protein ids (map_key=7)
+  4) Pipeline logic approved by Jennifer and Liz
+  5) Report extracts customized for every species

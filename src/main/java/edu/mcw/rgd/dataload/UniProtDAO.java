@@ -490,7 +490,7 @@ public class UniProtDAO extends AbstractDAO {
 
             String prevMD5 = _rgdId2md5.put(pair.keyValue, pair.stringValue);
             if( prevMD5!=null ) {
-                throw new Exception("ERROR: multiple sequences in RGD for protein RGDID:"+pair.keyValue);
+                System.out.println("WARN: multiple sequences in RGD for protein RGDID:"+pair.keyValue);
             }
         }
     }
