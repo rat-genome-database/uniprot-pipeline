@@ -447,21 +447,21 @@ public class UniProtDAO extends AbstractDAO {
         return ge;
     }
 
-    public List<Sequence2> getObjectSequences(int rgdId, String seqType) throws Exception {
-        return seqDAO.getObjectSequences2(rgdId, seqType);
+    public List<Sequence> getObjectSequences(int rgdId, String seqType) throws Exception {
+        return seqDAO.getObjectSequences(rgdId, seqType);
     }
 
-    public int insertSequence(Sequence2 seq) throws Exception {
+    public int insertSequence(Sequence seq) throws Exception {
         int r = seqDAO.insertSequence(seq);
         logSequences.info("INSERTED "+seq.dump("|"));
         return r;
     }
 
-    public void changeSequenceType(Sequence2 seqIncoming, String md5, String newSeqType) throws Exception {
+    public void changeSequenceType(Sequence seqIncoming, String md5, String newSeqType) throws Exception {
 
         // find the old sequence object in RGD
-        List<Sequence2> seqsInRgd = getObjectSequences(seqIncoming.getRgdId(), seqIncoming.getSeqType());
-        for( Sequence2 seqInRgd: seqsInRgd ) {
+        List<Sequence> seqsInRgd = getObjectSequences(seqIncoming.getRgdId(), seqIncoming.getSeqType());
+        for( Sequence seqInRgd: seqsInRgd ) {
             if( seqInRgd.getSeqMD5().equals(md5) ) {
                 // found the sequence in RGD -- change its seq_type to 'oldSeqType'
                 logSequences.info("SEQ_TYPE_CHANGE: old-seq-type="+seqInRgd.getSeqType()+", new-seq-type="+newSeqType);

@@ -111,7 +111,7 @@ public class ProteinLoader {
 
     void handleProteinSequences(UniProtRatRecord rec, Protein protein) throws Exception {
 
-        Sequence2 seqIncoming = new Sequence2();
+        Sequence seqIncoming = new Sequence();
         seqIncoming.setRgdId(protein.getRgdId());
         seqIncoming.setSeqData(rec.proteinSequence);
         seqIncoming.setSeqType(getSequenceType());
