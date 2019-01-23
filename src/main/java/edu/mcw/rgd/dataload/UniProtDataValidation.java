@@ -29,6 +29,7 @@ public class UniProtDataValidation {
     public void mergeIncomingRecords(List<UniProtRatRecord> incomingRecords) throws Exception {
 
         int insertedDomains = 0;
+        int upToDateDomains = 0;
 
         for( UniProtRatRecord incomingRec: incomingRecords ) {
 
@@ -44,29 +45,30 @@ public class UniProtDataValidation {
             }
 
             // merge protein domains
-            if(false) {
-                for (ProteinDomain pd : incomingRec.domains) {
+            for (ProteinDomain pd : incomingRec.domains) {
 
-                    if (pd.geInRgd == null) {
-                        GenomicElement ge = dbDao.insertDomainName(pd.getDomainName());
-                        // if ge has been inserted, its objectStatus property will be null
-                        if (ge.getObjectStatus() == null) {
-                            insertedDomains++;
-                        }
-                        pd.geInRgd = ge;
+                if (pd.geInRgd == null) {
+                    GenomicElement ge = dbDao.insertDomainName(pd.getDomainName());
+                    // if ge has been inserted, its objectStatus property will be null
+                    if (ge.getObjectStatus() == null) {
+                        insertedDomains++;
+                    } else {
+                        upToDateDomains++;
                     }
-
-                    List<ProteinDomain> list = domainsMap.get(pd.geInRgd.getRgdId());
-                    if (list == null) {
-                        list = new ArrayList<>();
-                        domainsMap.put(pd.geInRgd.getRgdId(), list);
-                    }
-                    list.add(pd);
+                    pd.geInRgd = ge;
                 }
+
+                List<ProteinDomain> list = domainsMap.get(pd.geInRgd.getRgdId());
+                if (list == null) {
+                    list = new ArrayList<>();
+                    domainsMap.put(pd.geInRgd.getRgdId(), list);
+                }
+                list.add(pd);
             }
         }
 
-        System.out.println("INSERTED DOMAINS: "+insertedDomains);
+        System.out.println("DOMAINS INSERTED: "+insertedDomains);
+        System.out.println("DOMAINS UP-TO-DATE: "+upToDateDomains);
     }
 
     public void load() throws Exception {

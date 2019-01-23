@@ -1,4 +1,6 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jan 23, 2019 - build 1.8.16
+  added loading of protein domain objects
 
 Nov 12, 2018 - build 1.8.15
   protein loader: relaxed handling of problems with multiple protein sequences

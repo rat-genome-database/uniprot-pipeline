@@ -49,3 +49,15 @@ MATCHING
   due to code flaw some entries are unnecessarily inserted, and during next pipeline run they are deleted and so on;
   therefore as of June 22, 2015 these logs are discontinued;
   inserted.log and deleted.log are used instead
+
+
+ PROTEIN DOMAINS
+
+ protein domains are identified by name and loaded into the database;
+
+ if a protein has a given domain appearing multiple times, the occurrence number
+ is added to the domain name, f.e.
+   P58365 protein has Cadherin domain appearing 27 times!
+   so the domain names are like this: 'Cadherin 1', 'Cadherin 2', ... 'Cadherin 27'
+   we want to keep a clean domain name and therefore we strip the last part
+   and keep only the domain name f.e. 'Cadherin'

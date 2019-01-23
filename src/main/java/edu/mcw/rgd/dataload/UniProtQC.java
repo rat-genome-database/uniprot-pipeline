@@ -10,6 +10,8 @@ import edu.mcw.rgd.process.mapping.MapManager;
 
 import java.util.*;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author mtutaj
@@ -196,12 +198,28 @@ public class UniProtQC {
         }
     }
 
+    static Pattern domainNameCounterPattern = Pattern.compile(" \\d+$");
+
     void qcProteinDomains( UniProtRatRecord data) throws Exception {
-        if( false ) {
-            for (ProteinDomain pd : data.domains) {
-                pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
-                pd.loci = positionProteinDomain(pd, data.uniProtAccId);
+        // many proteins have the same domain appearing multiple times
+        // f.e. P58365 protein has Cadherin domain appearing 27 times!
+        //   so the domain names are like this: 'Cadherin 1', 'Cadherin 2', ... 'Cadherin 27'
+        // therefore we have to strip the last part and keep only the domain name f.e. 'Cadherin'
+        for (ProteinDomain pd : data.domains) {
+            Matcher m = domainNameCounterPattern.matcher(pd.getDomainName());
+            int counterPos = -1;
+            while( m.find() ) {
+                counterPos = m.start();
             }
+            if( counterPos>0 ) {
+                pd.setDomainName( pd.getDomainName().substring(0, counterPos));
+            }
+            //logDomain.info(pd.getDomainName() +" =" +data.getUniProtAccId());
+
+            pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
+
+            // TODO:
+            //pd.loci = positionProteinDomain(pd, data.uniProtAccId);
         }
     }
 
