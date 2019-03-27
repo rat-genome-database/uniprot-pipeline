@@ -35,6 +35,7 @@ public class UniProtDAO extends AbstractDAO {
     private AliasDAO aliasDAO = new AliasDAO();
     private AssociationDAO associationDAO = new AssociationDAO();
     private GenomicElementDAO geDAO = new GenomicElementDAO();
+    private MapDAO mapDAO = new MapDAO();
     private ProteinDAO proteinDAO = new ProteinDAO();
     private RGDManagementDAO rgdidsDAO = new RGDManagementDAO();
     private SequenceDAO seqDAO = new SequenceDAO();
@@ -495,4 +496,8 @@ public class UniProtDAO extends AbstractDAO {
         }
     }
     static Map<Integer, String> _rgdId2md5 = new HashMap<>();
+
+    public int insertMapData(List<MapData> mds) throws Exception {
+        return mapDAO.insertMapData(mds);
+    }
 }

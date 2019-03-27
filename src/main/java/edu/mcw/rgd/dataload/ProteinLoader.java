@@ -178,38 +178,33 @@ public class ProteinLoader {
 
     void handleProteinToDomainAssociations(UniProtRatRecord rec, Protein protein) throws Exception {
 
-        //System.out.println("===TODOD: handle protein 2 domain associations");
-        boolean isTrue = false;
-
-        if( isTrue ) {
-            // create incoming associations
-            List<Association> assocIncoming = new ArrayList<>();
-            for (ProteinDomain domain : rec.domains) {
-                if (domain.geInRgd == null) {
-                    continue;
-                }
-                Association assoc = new Association();
-                assoc.setSrcPipeline(rec.getSrcPipeline());
-                assoc.setAssocType("protein_to_domain"); // 'protein_to_gene'
-                assoc.setMasterRgdId(protein.getRgdId());
-                assoc.setDetailRgdId(domain.geInRgd.getRgdId());
-                assocIncoming.add(assoc);
+        // create incoming associations
+        List<Association> assocIncoming = new ArrayList<>();
+        for (ProteinDomain domain : rec.domains) {
+            if (domain.geInRgd == null) {
+                continue;
             }
-
-            // get existing associations in RGD
-            List<Association> assocInRgd = getDao().getAssociationsForMasterRgdId(protein.getRgdId(), "protein_to_domain");
-
-            Collection<Association> assocMatched = CollectionUtils.intersection(assocIncoming, assocInRgd);
-            Collection<Association> assocToBeInserted = CollectionUtils.subtract(assocIncoming, assocInRgd);
-            Collection<Association> assocToBeDeleted = CollectionUtils.subtract(assocInRgd, assocIncoming);
-
-            getDao().insertAssociations(assocToBeInserted);
-            getDao().deleteAssociations(assocToBeDeleted);
-
-            manager.incrementCounter("  protein-to-domain assoc matched ", assocMatched.size());
-            manager.incrementCounter("  protein-to-domain assoc inserted ", assocToBeInserted.size());
-            manager.incrementCounter("  protein-to-domain assoc deleted ", assocToBeDeleted.size());
+            Association assoc = new Association();
+            assoc.setSrcPipeline(rec.getSrcPipeline());
+            assoc.setAssocType("protein_to_domain");
+            assoc.setMasterRgdId(protein.getRgdId());
+            assoc.setDetailRgdId(domain.geInRgd.getRgdId());
+            assocIncoming.add(assoc);
         }
+
+        // get existing associations in RGD
+        List<Association> assocInRgd = getDao().getAssociationsForMasterRgdId(protein.getRgdId(), "protein_to_domain");
+
+        Collection<Association> assocMatched = CollectionUtils.intersection(assocIncoming, assocInRgd);
+        Collection<Association> assocToBeInserted = CollectionUtils.subtract(assocIncoming, assocInRgd);
+        Collection<Association> assocToBeDeleted = CollectionUtils.subtract(assocInRgd, assocIncoming);
+
+        getDao().insertAssociations(assocToBeInserted);
+        getDao().deleteAssociations(assocToBeDeleted);
+
+        manager.incrementCounter("  protein-to-domain assoc matched ", assocMatched.size());
+        manager.incrementCounter("  protein-to-domain assoc inserted ", assocToBeInserted.size());
+        manager.incrementCounter("  protein-to-domain assoc deleted ", assocToBeDeleted.size());
     }
 
     void handleXdbIds(UniProtRatRecord rec, Protein protein) throws Exception {

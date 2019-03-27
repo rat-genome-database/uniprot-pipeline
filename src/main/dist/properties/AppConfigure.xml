@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline build 1.8.16 - as of Jan 23, 2019" />
+        <property name="version" value="UniProtKB pipeline build 1.8.17 - as of Mar 27, 2019" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -23,6 +23,7 @@
                 <entry key="Squirrel" value="uniprot_sprot_rodents.dat.gz"/>
                 <entry key="Dog" value="uniprot_sprot_mammals.dat.gz"/>
                 <entry key="Bonobo" value="uniprot_sprot_mammals.dat.gz"/>
+                <entry key="Pig" value="uniprot_sprot_mammals.dat.gz"/>
             </map>
         </property>
         <property name="tremblFileNames">
@@ -34,6 +35,7 @@
                 <entry key="Squirrel" value="uniprot_trembl_rodents.dat.gz"/>
                 <entry key="Dog" value="uniprot_trembl_mammals.dat.gz"/>
                 <entry key="Bonobo" value="uniprot_trembl_mammals.dat.gz"/>
+                <entry key="Pig" value="uniprot_trembl_mammals.dat.gz"/>
             </map>
         </property>
 

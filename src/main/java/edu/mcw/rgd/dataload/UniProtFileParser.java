@@ -21,7 +21,7 @@ public class UniProtFileParser {
     int downloadMaxRetryCount; // how many times we should try to download the file
     int downloadRetryInterval; // interval in seconds between download retrials
     private int speciesTypeKey = SpeciesType.ALL;
-    private String organism;
+    private int taxonid;
 
     private AccIdDumper accIdDumper;
 
@@ -47,7 +47,7 @@ public class UniProtFileParser {
         }
 
         this.speciesTypeKey = speciesTypeKey;
-        this.organism = SpeciesType.getTaxonomicName(speciesTypeKey).toLowerCase();
+        this.taxonid = SpeciesType.getTaxonomicId(speciesTypeKey);
     }
 
     public void processFile1(String fileName1, String srcPipeline) throws Exception {
@@ -100,7 +100,7 @@ public class UniProtFileParser {
         UniProtRatRecord rec = new UniProtRatRecord(srcPipeline);
         int recNo = 0;
         boolean speciesIsCorrect = true;
-        String lineOS = ""; // can span multiple lines
+        String lineOX = ""; // can span multiple lines
 
         while ((line=reader.readLine()) != null) {
 
@@ -134,21 +134,17 @@ public class UniProtFileParser {
 
                 // prepare for next record
                 rec = new UniProtRatRecord(srcPipeline);
-                speciesIsCorrect = true; // assume next record is rat
+                speciesIsCorrect = false;
                 uniprotID = uniprotAC = null;
-                lineOS = "";
+                lineOX = "";
                 continue;
             }
 
-            // skip all lines for different species records
-            if( !speciesIsCorrect )
-                continue;
-
-            // process only RAT records -- skip the rest
-            if( line.startsWith("OS") ) {
-                lineOS += line; // OS can span multiple lines ...
-                if( !lineOS.toLowerCase().contains(this.organism) ) {
-                    speciesIsCorrect = false;
+            // process species
+            if( line.startsWith("OX") ) {
+                lineOX += line; // OX can span multiple lines ...
+                if( parseTaxonId(lineOX) == this.taxonid ) {
+                    speciesIsCorrect = true;
                 }
                 continue;
             }
@@ -250,6 +246,24 @@ public class UniProtFileParser {
 
         dblog.log("finished processing of ", fileName, PipelineLogger.INFO);
         System.out.println("finished processing of "+ fileName);
+    }
+
+    /// OX   NCBI_TaxID=442598 {ECO:0000313|EMBL:AXQ06062.1};
+    int parseTaxonId(String lineOX) {
+
+        String pattern = "NCBI_TaxID=";
+        int posStart = lineOX.indexOf(pattern);
+        if( posStart<0 ) {
+            return 0;
+        }
+        posStart += pattern.length();
+
+        int posEnd = lineOX.indexOf(' ', posStart);
+        if( posEnd <= posStart ) {
+            return 0;
+        }
+        String taxId = lineOX.substring(posStart, posEnd);
+        return Integer.parseInt(taxId);
     }
 
     void parseRefSeq(String xdbName, String accId, String nucId, UniProtRatRecord ratData) {
@@ -368,15 +382,11 @@ public class UniProtFileParser {
     boolean inProteinDomain;
 
     int parseFeaturePos(String str) {
-        if( false ) {
-            String pos = str.trim();
-            if (pos.startsWith("<") || pos.startsWith(">")) {
-                pos = pos.substring(1);
-            }
-            return Integer.parseInt(pos);
-        } else {
-            return 0;
+        String pos = str.trim();
+        if( pos.startsWith("<") || pos.startsWith(">") || pos.startsWith("?") ) {
+            pos = pos.substring(1);
         }
+        return Integer.parseInt(pos);
     }
 
     // remove any contents in braces

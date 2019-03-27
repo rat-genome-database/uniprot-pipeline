@@ -1,4 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+
+Mar 27, 2019 - build 1.8.17
+  added processing for 'pig'
+
 Jan 23, 2019 - build 1.8.16
   added loading of protein domain objects
 

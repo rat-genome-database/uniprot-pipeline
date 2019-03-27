@@ -12,7 +12,7 @@ cd $APP_HOME
 #initialize cron.log
 echo "===" > cron.log
 
-speciesList=( "rat" "mouse" "human" "dog" "bonobo" "squirrel" "chinchilla" )
+speciesList=( "rat" "mouse" "human" "dog" "bonobo" "squirrel" "chinchilla" "pig" )
 
 for species in "${speciesList[@]}"; do
     $APP_HOME/_run.sh -species "$species" $@  2>&1  >> cron.log

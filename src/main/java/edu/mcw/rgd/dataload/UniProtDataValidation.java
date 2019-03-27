@@ -8,6 +8,7 @@ import edu.mcw.rgd.datamodel.MapData;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.process.Utils;
+import edu.mcw.rgd.process.mapping.MapManager;
 
 /**
  * @author mtutaj
@@ -73,24 +74,26 @@ public class UniProtDataValidation {
 
     public void load() throws Exception {
 
+        int primaryMapKey = MapManager.getInstance().getReferenceAssembly(speciesTypeKey).getKey();
+
         System.out.println(" loading uniprot xdb ids ...");
         for( UniProtRecord rec: records.values() ) {
             load(rec);
         }
 
-        if( false ) {
-            System.out.println(" loading protein domains ...");
-            for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
-                System.out.println("processing PD " + entry.getKey());
+        System.out.println(" loading protein domains ...");
+        for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
+            System.out.println("processing PD " + entry.getKey());
 
-                List<MapData> domainLoci = new ArrayList<>();
-                for (ProteinDomain pd : entry.getValue()) {
+            List<MapData> domainLoci = new ArrayList<>();
+            for (ProteinDomain pd : entry.getValue()) {
+                if( pd.loci!=null ) {
                     for (MapData md : pd.loci) {
                         addDomainLoci(domainLoci, md);
                     }
                 }
-                updateDomainLociInDb(entry.getKey(), 360, "UniProtKB", domainLoci);
             }
+            updateDomainLociInDb(entry.getKey(), primaryMapKey, "UniProtKB", domainLoci);
         }
 
         System.out.println(" loading OK!");
@@ -117,8 +120,34 @@ public class UniProtDataValidation {
 
     void updateDomainLociInDb( int domainRgdId, int mapKey, String srcPipeline, List<MapData> loci ) throws Exception {
         MapDAO mdao = new MapDAO();
-        List<MapData> mdInRgd = mdao.getMapData(domainRgdId, mapKey, srcPipeline);
+        List<MapData> mdsInRgd = mdao.getMapData(domainRgdId, mapKey, srcPipeline);
 
+        // if incoming locus has a match in RGD, remove them from the lists
+        List<MapData> mdsUpToDate = new ArrayList<>(mdsInRgd.size());
+
+        Iterator<MapData> it = loci.iterator();
+        while( it.hasNext() ) {
+            MapData mdIncoming = it.next();
+
+            // find a match in RGD
+            Iterator<MapData> itInRgd = mdsInRgd.iterator();
+            while( itInRgd.hasNext() ) {
+                MapData mdInRgd = itInRgd.next();
+                if( mdInRgd.equalsByGenomicCoords(mdIncoming) ) {
+                    mdsUpToDate.add(mdInRgd);
+                    itInRgd.remove();
+                    it.remove();
+                    break;
+                }
+            }
+        }
+
+        if( !mdsInRgd.isEmpty() ) {
+            System.out.println("LOCI to be removed from RGD");
+        }
+        if( !loci.isEmpty() ) {
+            dbDao.insertMapData(loci);
+        }
     }
 
     class DomainLociComparator implements Comparator<MapData> {

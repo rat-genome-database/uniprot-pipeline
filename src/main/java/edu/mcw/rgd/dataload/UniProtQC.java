@@ -218,8 +218,7 @@ public class UniProtQC {
 
             pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
 
-            // TODO:
-            //pd.loci = positionProteinDomain(pd, data.uniProtAccId);
+            pd.loci = positionProteinDomain(pd, data.uniProtAccId);
         }
     }
 
@@ -254,10 +253,29 @@ public class UniProtQC {
                     }
                     List<CodingFeature> cfs = utils.buildCfList(md);
 
+                    List<MapData> mds;
                     if( md.getStrand().equals("-") ) {
-                        results.addAll(handleNegativeStrand(cfs, nucStartPos, lenToGo, pd.geInRgd.getRgdId(), uniProtAccId));
+                        mds = handleNegativeStrand(cfs, nucStartPos, lenToGo, pd.geInRgd.getRgdId(), uniProtAccId);
                     } else {
-                        results.addAll(handlePositiveStrand(cfs, nucStartPos, lenToGo, pd.geInRgd.getRgdId(), uniProtAccId));
+                        mds = handlePositiveStrand(cfs, nucStartPos, lenToGo, pd.geInRgd.getRgdId(), uniProtAccId);
+                    }
+
+                    // merge all cds chunks of protein domain position into one range
+                    MapData mdRange = null;
+                    for( MapData m: mds ) {
+                        if( mdRange==null ) {
+                            mdRange = m.clone();
+                        } else {
+                            if( m.getStartPos() < mdRange.getStartPos() ) {
+                                mdRange.setStartPos( m.getStartPos() );
+                            }
+                            if( m.getStopPos() > mdRange.getStopPos() ) {
+                                mdRange.setStopPos( m.getStopPos() );
+                            }
+                        }
+                    }
+                    if( mdRange!=null ) {
+                        results.add(mdRange);
                     }
                 }
             }

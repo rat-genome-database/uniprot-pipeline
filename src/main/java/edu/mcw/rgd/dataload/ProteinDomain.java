@@ -3,7 +3,6 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.datamodel.GenomicElement;
 import edu.mcw.rgd.datamodel.MapData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
