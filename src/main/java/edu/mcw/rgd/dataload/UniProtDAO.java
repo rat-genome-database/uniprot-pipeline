@@ -3,10 +3,8 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.dao.*;
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
-import edu.mcw.rgd.dao.spring.StringListQuery;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.PipelineLogger;
-import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -422,6 +420,20 @@ public class UniProtDAO extends AbstractDAO {
 
     public Protein getProteinByUniProtId(String uniProtId) throws Exception {
         return proteinDAO.getProteinByUniProtId(uniProtId);
+    }
+
+    public List<Protein> getActiveProteins(int speciesTypeKey) throws Exception {
+        return proteinDAO.getActiveProteins(speciesTypeKey);
+    }
+
+    public boolean withdrawProtein(int rgdId) throws Exception {
+        RgdId id = rgdidsDAO.getRgdId2(rgdId);
+        if( id!=null && id.getObjectKey()==RgdId.OBJECT_KEY_PROTEINS ) {
+            rgdidsDAO.withdraw(id);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public GenomicElement getProteinDomainObject(String proteinDomain) throws Exception {

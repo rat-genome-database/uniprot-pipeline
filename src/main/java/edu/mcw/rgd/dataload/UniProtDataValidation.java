@@ -81,19 +81,21 @@ public class UniProtDataValidation {
             load(rec);
         }
 
-        System.out.println(" loading protein domains ...");
-        for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
-            System.out.println("processing PD " + entry.getKey());
+        if(false) { // at the moment skip loading of protein domain positions
+            System.out.println(" loading protein domains ...");
+            for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
+                System.out.println("processing PD " + entry.getKey());
 
-            List<MapData> domainLoci = new ArrayList<>();
-            for (ProteinDomain pd : entry.getValue()) {
-                if( pd.loci!=null ) {
-                    for (MapData md : pd.loci) {
-                        addDomainLoci(domainLoci, md);
+                List<MapData> domainLoci = new ArrayList<>();
+                for (ProteinDomain pd : entry.getValue()) {
+                    if (pd.loci != null) {
+                        for (MapData md : pd.loci) {
+                            addDomainLoci(domainLoci, md);
+                        }
                     }
                 }
+                updateDomainLociInDb(entry.getKey(), primaryMapKey, "UniProtKB", domainLoci);
             }
-            updateDomainLociInDb(entry.getKey(), primaryMapKey, "UniProtKB", domainLoci);
         }
 
         System.out.println(" loading OK!");

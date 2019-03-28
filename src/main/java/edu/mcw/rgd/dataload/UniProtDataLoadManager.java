@@ -99,6 +99,11 @@ public class UniProtDataLoadManager {
                     case "--loadRefSeq2UniProt":
                         loadRefSeq2UniprotMappings = true;
                         break;
+
+                    case "--deletedAccessions":
+                        DeletedAccessions module = (DeletedAccessions) (bf.getBean("deletedAccessions"));
+                        module.run();
+                        return;
                 }
             }
 
