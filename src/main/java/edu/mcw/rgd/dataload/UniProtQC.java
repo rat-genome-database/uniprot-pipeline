@@ -218,7 +218,9 @@ public class UniProtQC {
 
             pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
 
-            pd.loci = positionProteinDomain(pd, data.uniProtAccId);
+            if( pd.geInRgd!=null ) {
+                pd.loci = positionProteinDomain(pd, data.uniProtAccId);
+            }
         }
     }
 
