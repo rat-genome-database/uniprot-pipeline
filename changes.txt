@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+May 9, 2019 - build 1.8.20
+  minus/plus strand problems are now stored in strand_problems.log file; instead of all cases being reported in the summary email
+
 Mar 28, 2019 - build 1.8.18
   added processing of UniProtKB deleted accessions
 

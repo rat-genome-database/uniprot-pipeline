@@ -282,6 +282,9 @@ public class UniProtDataLoadManager {
             System.out.println("newActiveGene: "+qc.getNewActiveGene());
         if( qc.getUnMatched()>0 )
             System.out.println("unMatched    : "+qc.getUnMatched());
+        if( qc.getStrandProblems()>0 ) {
+            System.out.println("strand problems : " + qc.getStrandProblems()+"   ; details in strand_problem.log");
+        }
 
         dumpGlobalCounters();
 

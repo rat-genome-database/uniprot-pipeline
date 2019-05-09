@@ -7,6 +7,7 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
+import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.Map;
@@ -26,8 +27,10 @@ public class UniProtQC {
     private int unMatched;
     private int inActiveGene;
     private int newActiveGene;
+    private int strandProblems; // count of lines with strand problems
     private List<String> uniprotSources = new ArrayList<>(2);
     private Map<String, Integer> matchXdbCount = new TreeMap<>();
+    static Logger logStrandProblem = Logger.getLogger("strand_problem");
 
     public UniProtQC() {
         uniprotSources.add(PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.SWISSPROT);
@@ -327,7 +330,8 @@ public class UniProtQC {
                 }
             }
         }
-        System.out.println("plus strand problem "+uniProtAccId+" "+lenToGo);
+        logStrandProblem.info("plus strand problem "+uniProtAccId+" "+lenToGo);
+        strandProblems++;
         return results;
     }
 
@@ -378,7 +382,8 @@ public class UniProtQC {
                 lenToGo -= domainPartLen;
             }
         }
-        System.out.println("minus strand problem "+uniProtAccId+" "+lenToGo);
+        logStrandProblem.info("minus strand problem "+uniProtAccId+" "+lenToGo);
+        strandProblems++;
         return results;
     }
 
@@ -428,5 +433,13 @@ public class UniProtQC {
 
     public void setNewActiveGene(int newActiveGene) {
         this.newActiveGene = newActiveGene;
+    }
+
+    public int getStrandProblems() {
+        return strandProblems;
+    }
+
+    public void setStrandProblems(int strandProblems) {
+        this.strandProblems = strandProblems;
     }
 }
