@@ -258,12 +258,17 @@ public class UniProtFileParser {
         }
         posStart += pattern.length();
 
-        int posEnd = lineOX.indexOf(' ', posStart);
-        if( posEnd <= posStart ) {
-            return 0;
+        // continue as long as there are digits
+        int taxonId = 0;
+        for( int pos=posStart; pos<lineOX.length(); pos++ ) {
+            char c = lineOX.charAt(pos);
+            if( !Character.isDigit(c) ) {
+                break;
+            }
+            taxonId *= 10;
+            taxonId += Character.digit(c, 10);
         }
-        String taxId = lineOX.substring(posStart, posEnd);
-        return Integer.parseInt(taxId);
+        return taxonId;
     }
 
     void parseRefSeq(String xdbName, String accId, String nucId, UniProtRatRecord ratData) {
