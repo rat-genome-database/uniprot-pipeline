@@ -491,8 +491,21 @@ public class UniProtDAO extends AbstractDAO {
         throw new Exception(" CONFLICT: changeSequenceType -- unexpected: cannot find a sequence in rgd");
     }
 
-    public String getMD5ForObjectSequences(int rgdId) throws Exception {
-        return _rgdId2md5.get(rgdId);
+    public String getMD5ForObjectSequences(int rgdId, String seqType) throws Exception {
+        String md5 = _rgdId2md5.get(rgdId);
+        if( md5!=null ) {
+            return md5;
+        }
+        // maybe cache is out-of-date: load directly from database
+        List<Sequence> seqs = seqDAO.getObjectSequences(rgdId, seqType);
+        for( Sequence seq: seqs ) {
+            if( md5==null ) {
+                md5 = seq.getSeqMD5();
+            } else if( !md5.equals(seq.getSeqMD5()) ) {
+                System.out.println("*** DATA INTEGRITY PROBLEM: multiple MD5 for RGD:"+rgdId);
+            }
+        }
+        return md5;
     }
 
     public void loadMD5ForProteinSequences(int speciesTypeKey, String seqType) throws Exception {

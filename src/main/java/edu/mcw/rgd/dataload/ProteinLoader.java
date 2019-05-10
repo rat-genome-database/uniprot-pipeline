@@ -116,7 +116,7 @@ public class ProteinLoader {
         seqIncoming.setSeqData(rec.proteinSequence);
         seqIncoming.setSeqType(getSequenceType());
 
-        String seqInRgdMD5 = getDao().getMD5ForObjectSequences(protein.getRgdId());
+        String seqInRgdMD5 = getDao().getMD5ForObjectSequences(protein.getRgdId(), getSequenceType());
         if( seqInRgdMD5==null ) {
             getDao().insertSequence(seqIncoming);
             manager.incrementCounter("  protein-sequences inserted", 1);
