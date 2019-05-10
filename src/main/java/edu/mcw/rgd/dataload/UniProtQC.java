@@ -245,6 +245,10 @@ public class UniProtQC {
 
         // map protein domain to protein
         Protein p = pdao.getProteinByUniProtId(uniProtAccId);
+        if( p==null ) {
+            System.out.println("*** ERROR: unexpected: no protein for "+uniProtAccId);
+            return results;
+        }
 
         // map protein to ncbi protein acc ids
         List<XdbId> ncbiProtAccIds = xdao.getXdbIdsByRgdId(XdbId.XDB_KEY_GENEBANKPROT, p.getRgdId());
