@@ -5,6 +5,7 @@ import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.log.RGDSpringLogger;
 import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -27,6 +28,7 @@ public class UniProtDataLoadManager {
     static long startMilisec=System.currentTimeMillis();
     static long runSec=0;
     RGDSpringLogger rgdLogger;
+    Logger logMain = Logger.getLogger("main");
 
     int speciesTypeKey;
     private String version;
@@ -58,9 +60,9 @@ public class UniProtDataLoadManager {
         manager = dataManager;
 
         // ensure this text matches the 'appver' property from build.xml file
-        System.out.println(dataManager.getVersion());
+        manager.logMain.info(dataManager.getVersion());
 
-        System.out.println(dataManager.dao.getConnectionInfo());
+        manager.logMain.info(dataManager.dao.getConnectionInfo());
 
         boolean loadRefSeq2UniprotMappings = false;
 
@@ -160,7 +162,7 @@ public class UniProtDataLoadManager {
      */
     public void startPipeline(String fileName, String fileName2, int speciesTypeKey) throws Exception {
 
-        System.out.println("===== start "+SpeciesType.getCommonName(speciesTypeKey)+" UniProtKB pipeline =====");
+        logMain.info("===== start "+SpeciesType.getCommonName(speciesTypeKey)+" UniProtKB pipeline =====");
 
         qc.setSpeciesTypeKey(speciesTypeKey);
         qc.setDao(dao);
@@ -231,8 +233,8 @@ public class UniProtDataLoadManager {
 
         dbLogger.close(true);
 
-        System.out.println("===== done "+SpeciesType.getCommonName(speciesTypeKey)+" UniProtKB pipeline =====");
-        System.out.println();
+        logMain.info("===== done "+SpeciesType.getCommonName(speciesTypeKey)+" UniProtKB pipeline =====");
+        logMain.info("");
     }
 
     // write summary to db pipeline logs
@@ -259,36 +261,36 @@ public class UniProtDataLoadManager {
     public void writeSummary() throws Exception {
         long endMilisec=System.currentTimeMillis();
         runSec=(endMilisec-startMilisec)/1000;
-        System.out.println("Protein records found in the source file   : "+fileParser.getTotRecord());
+        logMain.info("Protein records found in the source file   : "+fileParser.getTotRecord());
         if( fileParser.getSkipRecord()>0 )
-            System.out.println("   records skipped (different species): "+fileParser.getSkipRecord());
+            logMain.info("   records skipped (different species): "+fileParser.getSkipRecord());
         if( dao.getRowsInserted()>0 )
-            System.out.println("Xdb ids loaded into RGD  : "+dao.getRowsInserted());
+            logMain.info("Xdb ids loaded into RGD  : "+dao.getRowsInserted());
         if( dao.getRowsDeleted()>0 )
-            System.out.println("  xdb ids deleted        : "+dao.getRowsDeleted());
+            logMain.info("  xdb ids deleted        : "+dao.getRowsDeleted());
         if( dao.getStaleRowsDeleted()>0 )
-            System.out.println("  xdb ids deleted (stale): "+dao.getStaleRowsDeleted());
+            logMain.info("  xdb ids deleted (stale): "+dao.getStaleRowsDeleted());
         if( dao.getRowsMatched()>0 )
-            System.out.println("  xdb ids matching RGD   : "+dao.getRowsMatched());
+            logMain.info("  xdb ids matching RGD   : "+dao.getRowsMatched());
 
         if( dao.getAliasesUpToDate()>0 )
-            System.out.println("  old_protein_id aliases up-to-date: "+dao.getAliasesUpToDate());
+            logMain.info("  old_protein_id aliases up-to-date: "+dao.getAliasesUpToDate());
         if( dao.getAliasesInserted()>0 )
-            System.out.println("  old_protein_id aliases inserted  : "+dao.getAliasesInserted());
+            logMain.info("  old_protein_id aliases inserted  : "+dao.getAliasesInserted());
 
         if( qc.getInActiveGene()>0 )
-            System.out.println("inActiveGene : "+qc.getInActiveGene());
+            logMain.info("inActiveGene : "+qc.getInActiveGene());
         if( qc.getNewActiveGene()>0 )
-            System.out.println("newActiveGene: "+qc.getNewActiveGene());
+            logMain.info("newActiveGene: "+qc.getNewActiveGene());
         if( qc.getUnMatched()>0 )
-            System.out.println("unMatched    : "+qc.getUnMatched());
+            logMain.info("unMatched    : "+qc.getUnMatched());
         if( qc.getStrandProblems()>0 ) {
-            System.out.println("strand problems : " + qc.getStrandProblems()+"   ; details in strand_problem.log");
+            logMain.info("strand problems : " + qc.getStrandProblems()+"   ; details in strand_problem.log");
         }
 
         dumpGlobalCounters();
 
-        System.out.println("Process completed in "+Utils.formatElapsedTime(startMilisec, endMilisec));
+        logMain.info("Process completed in "+Utils.formatElapsedTime(startMilisec, endMilisec));
 
         // record logs in database
         String subSystem = "UniProtKB"+SpeciesType.getCommonName(this.speciesTypeKey);
@@ -306,10 +308,10 @@ public class UniProtDataLoadManager {
 
     void dumpGlobalCounters() {
 
-        System.out.println("=== global counters ===");
+        logMain.info("=== global counters ===");
         for( Map.Entry<String,Integer> entry: counters.entrySet() ) {
             if( entry.getValue()!=0 ) {
-                System.out.println("  "+entry.getKey()+":  "+entry.getValue());
+                logMain.info("  "+entry.getKey()+":  "+entry.getValue());
             }
         }
     }

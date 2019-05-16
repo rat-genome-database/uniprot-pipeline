@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+May 16, 2019 - build 1.8.22
+  improved logging
+
 May 10, 2019 - build 1.8.21
   fixed bug with parsing species line -- due to that some incoming data was not processed
   fixed bug causing insertions of duplicate protein sequences

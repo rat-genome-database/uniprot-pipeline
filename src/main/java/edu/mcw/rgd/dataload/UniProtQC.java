@@ -30,6 +30,8 @@ public class UniProtQC {
     private int strandProblems; // count of lines with strand problems
     private List<String> uniprotSources = new ArrayList<>(2);
     private Map<String, Integer> matchXdbCount = new TreeMap<>();
+
+    static Logger logMain = Logger.getLogger("main");
     static Logger logStrandProblem = Logger.getLogger("strand_problem");
 
     public UniProtQC() {
@@ -153,7 +155,7 @@ public class UniProtQC {
         // check if rgd id active
         Boolean isActive = dao.isGeneActive(rgdid, getSpeciesTypeKey());
         if( isActive==null ) {
-            System.out.println("CONFLICT: RGD ID "+rgdid+" is for different species!");
+            logMain.warn("CONFLICT: RGD ID "+rgdid+" is for different species!");
             return 0;
         }
 
@@ -246,7 +248,7 @@ public class UniProtQC {
         // map protein domain to protein
         Protein p = pdao.getProteinByUniProtId(uniProtAccId);
         if( p==null ) {
-            System.out.println("*** ERROR: unexpected: no protein for "+uniProtAccId);
+            logMain.warn("*** ERROR: unexpected: no protein for "+uniProtAccId);
             return results;
         }
 
@@ -392,11 +394,11 @@ public class UniProtQC {
     }
 
     public void dumpMatchSummary() {
-        System.out.println("== MATCH SUMMARY (by match priority) ==");
+        logMain.info("== MATCH SUMMARY (by match priority) ==");
         for( Map.Entry<String, Integer> entry: matchXdbCount.entrySet() ) {
-            System.out.println("  "+entry.getKey()+": "+entry.getValue() );
+            logMain.info("  "+entry.getKey()+": "+entry.getValue() );
         }
-        System.out.println("== MATCH SUMMARY ==");
+        logMain.info("== MATCH SUMMARY ==");
     }
 
     public UniProtDAO getDao() {

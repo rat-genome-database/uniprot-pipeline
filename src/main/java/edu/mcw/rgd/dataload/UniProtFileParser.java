@@ -3,6 +3,7 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.datamodel.PipelineLog;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.process.*;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
@@ -24,6 +25,7 @@ public class UniProtFileParser {
     private int taxonid;
 
     private AccIdDumper accIdDumper;
+    Logger logMain = Logger.getLogger("main");
 
     // map of counts of how many lines of particular database appears in the data
     Map<String, Integer> mapXdbCount = new HashMap<>(127);
@@ -245,7 +247,7 @@ public class UniProtFileParser {
         reader.close();
 
         dblog.log("finished processing of ", fileName, PipelineLogger.INFO);
-        System.out.println("finished processing of "+ fileName);
+        logMain.info("finished processing of "+ fileName);
     }
 
     /// OX   NCBI_TaxID=442598 {ECO:0000313|EMBL:AXQ06062.1};
@@ -312,7 +314,7 @@ public class UniProtFileParser {
                 String proteinName = cleanUpProteinName(line.substring(recNamePos, recNameEnd));
                 rec.setProteinName(proteinName);
             } else {
-                System.out.println(" problems with recommended name");
+                logMain.warn(" problems with recommended name: ["+line+"]");
             }
         } else {
             // parse submitted name only if recommended name is not present
@@ -325,7 +327,7 @@ public class UniProtFileParser {
                         String proteinName = cleanUpProteinName(line.substring(subNamePos, subNameEnd));
                         rec.setProteinName(proteinName);
                     } else {
-                        System.out.println(" problems with submitted name");
+                        logMain.warn(" problems with submitted name: ["+line+"]");
                     }
                 }
             }

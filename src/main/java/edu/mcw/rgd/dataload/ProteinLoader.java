@@ -3,6 +3,7 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +19,8 @@ import java.util.List;
 public class ProteinLoader {
 
     UniProtDataLoadManager manager;
+    Logger logMain = Logger.getLogger("main");
+
     private java.util.Map<Integer, List<XdbId>> secondaryIdMap;
 
     private String version;
@@ -61,7 +64,7 @@ public class ProteinLoader {
             handleXdbIds(rec, protein);
         }
 
-        System.out.println("--PROTEIN LOADER OK, elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+        logMain.info("--PROTEIN LOADER OK, elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }
 
     Protein getProteinByUniProtId(UniProtRatRecord rec) throws Exception {

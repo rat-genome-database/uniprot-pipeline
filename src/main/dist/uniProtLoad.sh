@@ -9,13 +9,14 @@ fi
 
 cd $APP_HOME
 
-#initialize cron.log
-echo "===" > cron.log
+#initialize summary.log
+echo "===" > $APP_HOME/logs/summary.log
 
 speciesList=( "rat" "mouse" "human" "dog" "bonobo" "squirrel" "chinchilla" "pig" )
 
 for species in "${speciesList[@]}"; do
-    $APP_HOME/_run.sh -species "$species" $@  2>&1  >> cron.log
-done
+    $APP_HOME/_run.sh -species "$species" $@  2>&1
+    cat $APP_HOME/logs/main_summary.log >> $APP_HOME/logs/summary.log
+doneq
 
-mailx -s "[$SERVER] UniProtKB data loading is done" $EMAIL_LIST< cron.log
+mailx -s "[$SERVER] UniProtKB data loading is done" $EMAIL_LIST < $APP_HOME/logs/summary.log

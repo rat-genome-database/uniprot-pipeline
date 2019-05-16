@@ -9,6 +9,7 @@ import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
+import org.apache.log4j.Logger;
 
 /**
  * @author mtutaj
@@ -18,6 +19,7 @@ public class UniProtDataValidation {
     UniProtDAO dbDao;
     java.util.Map<String,Integer> activeXdbIdMap;
     int speciesTypeKey;
+    Logger logMain = Logger.getLogger("main");
 
     private Map<Integer, UniProtRecord> records = new HashMap<>();
     private Map<Integer, List<ProteinDomain>> domainsMap = new HashMap<>();
@@ -68,23 +70,25 @@ public class UniProtDataValidation {
             }
         }
 
-        System.out.println("DOMAINS INSERTED: "+insertedDomains);
-        System.out.println("DOMAINS UP-TO-DATE: "+upToDateDomains);
+        if( insertedDomains!=0 ) {
+            logMain.info("DOMAINS INSERTED: " + insertedDomains);
+        }
+        logMain.info("DOMAINS UP-TO-DATE: "+upToDateDomains);
     }
 
     public void load() throws Exception {
 
         int primaryMapKey = MapManager.getInstance().getReferenceAssembly(speciesTypeKey).getKey();
 
-        System.out.println(" loading uniprot xdb ids ...");
+        logMain.debug(" loading uniprot xdb ids ...");
         for( UniProtRecord rec: records.values() ) {
             load(rec);
         }
 
         if(false) { // at the moment skip loading of protein domain positions
-            System.out.println(" loading protein domains ...");
+            logMain.debug(" loading protein domains ...");
             for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
-                System.out.println("processing PD " + entry.getKey());
+                logMain.debug("processing PD " + entry.getKey());
 
                 List<MapData> domainLoci = new ArrayList<>();
                 for (ProteinDomain pd : entry.getValue()) {
@@ -98,7 +102,7 @@ public class UniProtDataValidation {
             }
         }
 
-        System.out.println(" loading OK!");
+        logMain.debug(" loading OK!");
     }
 
     void addDomainLoci(List<MapData> loci, MapData md) {
@@ -110,7 +114,7 @@ public class UniProtDataValidation {
                     && mdLoci.getStartPos().equals(md.getStartPos())
                     && mdLoci.getStopPos().equals(md.getStopPos()) ) {
 
-                System.out.println("-- protein-domain: merging duplicate loci");
+                logMain.warn("-- protein-domain: merging duplicate loci");
                 if( Utils.isStringEmpty(mdLoci.getNotes()) ) {
                     mdLoci.setNotes(md.getNotes());
                 } else if( !Utils.isStringEmpty(md.getNotes()) ) {
@@ -145,7 +149,7 @@ public class UniProtDataValidation {
         }
 
         if( !mdsInRgd.isEmpty() ) {
-            System.out.println("LOCI to be removed from RGD");
+            logMain.warn("LOCI to be removed from RGD");
         }
         if( !loci.isEmpty() ) {
             dbDao.insertMapData(loci);
