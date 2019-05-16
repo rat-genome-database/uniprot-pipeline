@@ -398,7 +398,6 @@ public class UniProtQC {
         for( Map.Entry<String, Integer> entry: matchXdbCount.entrySet() ) {
             logMain.info("  "+entry.getKey()+": "+entry.getValue() );
         }
-        logMain.info("== MATCH SUMMARY ==");
     }
 
     public UniProtDAO getDao() {

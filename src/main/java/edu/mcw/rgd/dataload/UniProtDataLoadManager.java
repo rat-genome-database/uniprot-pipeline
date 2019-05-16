@@ -62,7 +62,7 @@ public class UniProtDataLoadManager {
         // ensure this text matches the 'appver' property from build.xml file
         manager.logMain.info(dataManager.getVersion());
 
-        manager.logMain.info(dataManager.dao.getConnectionInfo());
+        manager.logMain.info("   "+dataManager.dao.getConnectionInfo());
 
         boolean loadRefSeq2UniprotMappings = false;
 

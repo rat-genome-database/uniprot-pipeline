@@ -64,7 +64,7 @@ public class ProteinLoader {
             handleXdbIds(rec, protein);
         }
 
-        logMain.info("--PROTEIN LOADER OK, elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
+        logMain.info("PROTEIN LOADER OK,   elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }
 
     Protein getProteinByUniProtId(UniProtRatRecord rec) throws Exception {

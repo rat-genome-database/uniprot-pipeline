@@ -24,7 +24,6 @@ public class UniProtFileParser {
     private int speciesTypeKey = SpeciesType.ALL;
     private int taxonid;
 
-    private AccIdDumper accIdDumper;
     Logger logMain = Logger.getLogger("main");
 
     // map of counts of how many lines of particular database appears in the data
@@ -33,7 +32,6 @@ public class UniProtFileParser {
 
     UniProtDataValidation dataValidation;
     PipelineLogger dblog = PipelineLogger.getInstance();
-    private String accIdDumpFile;
     private Map<String,String> swissProtFileNames;
     private Map<String,String> tremblFileNames;
 
@@ -56,21 +54,12 @@ public class UniProtFileParser {
         if( fileName1==null )
             fileName1 = download(this.fileName);
 
-        // create a file for dumping primary and secondary SPROT acc ids
-        accIdDumper = new AccIdDumper();
-        accIdDumper.writeFileHeader(this.getAccIdDumpFile()+"_"+SpeciesType.getCommonName(this.speciesTypeKey));
-
         processFile(fileName1, srcPipeline);
-
-        accIdDumper.close();
     }
 
     public void processFile2(String fileName2, String srcPipeline) throws Exception {
         if( fileName2==null )
             fileName2 = download(this.fileName2);
-
-        // no file for dumping TREMBL acc ids
-        accIdDumper = null;
 
         processFile(fileName2, srcPipeline);
     }
@@ -166,9 +155,6 @@ public class UniProtFileParser {
                     //      primary|secondary ids
                     String lineWithSecondaryAccIds = line.substring(5+uniprotAC.length()+1).trim();
                     rec.parseSecondaryAccessionIds(lineWithSecondaryAccIds);
-                    if( accIdDumper!=null ) {
-                        accIdDumper.writeData(uniprotAC, lineWithSecondaryAccIds);
-                    }
                 } else {
                     rec.parseSecondaryAccessionIds(line.substring(5).trim());
                 }
@@ -405,14 +391,6 @@ public class UniProtFileParser {
         } else {
             return proteinName;
         }
-    }
-
-    public void setAccIdDumpFile(String accIdDumpFile) {
-        this.accIdDumpFile = accIdDumpFile;
-    }
-
-    public String getAccIdDumpFile() {
-        return accIdDumpFile;
     }
 
     public void setSwissProtFileNames(Map<String,String> swissProtFileNames) {

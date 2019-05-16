@@ -42,7 +42,6 @@
         <property name="downloadMaxRetryCount" value="5"/>
         <property name="downloadRetryInterval" value="200" />
 	    <property name="dataValidation" ref="dataValidation"/>
-        <property name="accIdDumpFile" value="sprot_acc_id" />
 	</bean>
 	
 	<bean id="dataValidation" class="edu.mcw.rgd.dataload.UniProtDataValidation">
