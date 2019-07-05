@@ -11,4 +11,4 @@ fi
 
 $APP_HOME/_run.sh --deletedAccessions $@  2>&1  > cron3.log
 
-mailx -s "[$SERVER] UniProtKB: deleted accessions" $EMAIL_LIST< logs/deleted_acc_summary.log
+mailx -s "[$SERVER] UniProtKB: deleted accessions" $EMAIL_LIST< $APP_HOME/logs/deleted_acc_summary.log

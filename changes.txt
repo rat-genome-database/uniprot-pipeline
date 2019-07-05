@@ -1,5 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
-
+2019-07-05
+  fixed script processDeletedAccessions.sh -- it was not sending the summary email
+  
 May 16, 2019 - build 1.8.22
   discontinued AccIdDumper: no need to generate files with primary / secondary acc ids: this data is available by querying db
   improved logging
