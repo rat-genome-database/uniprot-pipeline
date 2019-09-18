@@ -32,6 +32,7 @@ public class UniProtDAO extends AbstractDAO {
 
     private AliasDAO aliasDAO = new AliasDAO();
     private AssociationDAO associationDAO = new AssociationDAO();
+    private GeneDAO geneDAO = associationDAO.getGeneDAO();
     private GenomicElementDAO geDAO = new GenomicElementDAO();
     private MapDAO mapDAO = new MapDAO();
     private ProteinDAO proteinDAO = new ProteinDAO();
@@ -87,6 +88,10 @@ public class UniProtDAO extends AbstractDAO {
     public List<Integer> matchXdbId(String accId, int xdbKey, int speciesTypeKey, List<String> uniprotSources) throws Exception {
 
         return xdbidDAO.getGeneRgdIdsByXdbId(xdbKey, accId, speciesTypeKey, uniprotSources);
+    }
+
+    public List<Gene> getGenesBySymbol(String geneSymbol, int speciesKey) throws Exception {
+        return geneDAO.getAllGenesBySymbol(geneSymbol, speciesKey);
     }
 
     /**

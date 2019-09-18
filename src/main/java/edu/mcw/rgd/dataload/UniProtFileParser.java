@@ -51,16 +51,20 @@ public class UniProtFileParser {
     }
 
     public void processFile1(String fileName1, String srcPipeline) throws Exception {
-        if( fileName1==null )
+        if( fileName1==null ) {
             fileName1 = download(this.fileName);
-
+        } else if( fileName1.equals("null") ) {
+            return;
+        }
         processFile(fileName1, srcPipeline);
     }
 
     public void processFile2(String fileName2, String srcPipeline) throws Exception {
-        if( fileName2==null )
+        if( fileName2==null ) {
             fileName2 = download(this.fileName2);
-
+        } else if( fileName2.equals("null") ) {
+            return;
+        }
         processFile(fileName2, srcPipeline);
     }
 
@@ -165,6 +169,11 @@ public class UniProtFileParser {
                 parseProteinName(line, rec);
                 continue;
             }
+            // extract gene name
+            if( line.startsWith("GN   ") ) {
+                parseGeneName(line, rec);
+                continue;
+            }
             // extract protein feature
             if( line.startsWith("FT   ") ) {
                 parseProteinFeature(line, rec);
@@ -201,9 +210,10 @@ public class UniProtFileParser {
                     // in one line there are several ids that in RGD fall into separate XDB_KEYS
                     // the source line looks like this: ENSRNOT00000016981; ENSRNOP00000016981; ENSRNOG00000010945
                     // or this:               ENSMUST00000018470; ENSMUSP00000018470; ENSMUSG00000018326. [Q9CQV8-1]
-                    rec.addEnsemblEntry(accId);
-                    rec.addEnsemblEntry(link1);
-                    rec.addEnsemblEntry(extractWord(link2, 0));
+                    boolean isHuman = speciesTypeKey==SpeciesType.HUMAN;
+                    rec.addEnsemblEntry(accId, isHuman);
+                    rec.addEnsemblEntry(link1, isHuman);
+                    rec.addEnsemblEntry(extractWord(link2, 0), isHuman);
                     break;
                 case "RefSeq":
                     parseRefSeq(xdbName, accId, link1, rec);
@@ -316,6 +326,18 @@ public class UniProtFileParser {
                         logMain.warn(" problems with submitted name: ["+line+"]");
                     }
                 }
+            }
+        }
+    }
+
+    void parseGeneName(String line, UniProtRatRecord rec) {
+        int geneNamePos = line.indexOf("Name=");
+        if( geneNamePos>0 ) {
+            geneNamePos += 5; // LENGTH('Name=')
+            int geneNameEnd = line.indexOf(";", geneNamePos);
+            if( geneNameEnd>geneNamePos ) {
+                String geneName = cleanUpProteinName(line.substring(geneNamePos, geneNameEnd));
+                rec.setGeneName(geneName);
             }
         }
     }

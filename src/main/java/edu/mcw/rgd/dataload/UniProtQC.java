@@ -94,11 +94,15 @@ public class UniProtQC {
         if( matchByXdbId(data, "EnsemblT", XdbId.XDB_KEY_ENSEMBL_TRANSCRIPT, "EnsemblT", " 9. ") )
             return true;
 
+        // Does the record have a match by gene symbol?
+        if( matchByGeneSymbol(data, "10. ") ) {
+            return true;
+        }
 
-        // no match on NCBI Gene ID, no match on UniProt ID and no match on RefSeq ID
+        // no match by NCBI Gene ID, no match on UniProt ID and no match on RefSeq ID
         unMatched++;
-        incrementMatchCount("10. unmatched");
-        dbLog.addLogProp("no match for NCBI Gene ID, HGNC ID, MGI ID, UniProt ID, RefSeq ID or Ensembl ID", "UNMATCHED", data.getRecNo(), PipelineLogger.REC_FLAG, data.makeRecAsString());
+        incrementMatchCount("11. unmatched");
+        dbLog.addLogProp("no match for NCBI Gene ID, HGNC ID, MGI ID, UniProt ID, RefSeq ID, Ensembl ID or UniProt Gene Name", "UNMATCHED", data.getRecNo(), PipelineLogger.REC_FLAG, data.makeRecAsString());
         return false;
     }
 
@@ -182,6 +186,35 @@ public class UniProtQC {
             // check if rgdid pulled from history is active, and if not active check its history as well...
             this.dbLog.addLogProp("inactive "+rgdid+" has rgd id history "+newRgdId, "GENE_WITH_HISTORY", rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
             return getActiveRgdId(newRgdId, true, rec);
+        }
+    }
+
+    boolean matchByGeneSymbol(UniProtRatRecord rec, String matchPriority) throws Exception {
+
+        if( rec.getGeneName()==null ) {
+            return false;
+        }
+
+        int activeRgdIdCount = 0;
+
+        for( Gene gene: dao.getGenesBySymbol(rec.getGeneName(), getSpeciesTypeKey()) ) {
+            int activeRgdId = getActiveRgdId(gene.getRgdId(), false, rec);
+            if( activeRgdId!=0 ) {
+                rec.matchingRgdIds.add(activeRgdId);
+                activeRgdIdCount++;
+            }
+            dbLog.addLogProp("GN:"+rec.getGeneName()+"\tRGDID:"+activeRgdId, "GN", rec.getRecNo(), PipelineLogger.REC_XDBID);
+        }
+
+        if( activeRgdIdCount>1 ) {
+            dbLog.addLogProp("multiple GNs: "+ Utils.concatenate(rec.matchingRgdIds,","), "MULTI-"+rec.getGeneName(), rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
+        }
+
+        if( activeRgdIdCount>0 ) {
+            incrementMatchCount(matchPriority + "UniProtGeneName");
+            return true;
+        } else {
+            return false;
         }
     }
 

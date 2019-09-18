@@ -40,7 +40,7 @@ MATCHING
   - OLD logic:
     RGD, GeneId, HGNC, MGI, UniProt, RefSeq Nucl, Ensembl
   - NEW logic:
-    GeneId, HGNC, MGI, RefSeq Nucl, UniProt, Ensembl
+    GeneId, HGNC, MGI, RefSeq Nucl, UniProt, Ensembl, UniProt GeneName
 2) improved handling of multis:
  - where one UniProtKB id matches multiple genes in RGD
    previous logic was not properly handling of up to 0.1% of uniprot ids

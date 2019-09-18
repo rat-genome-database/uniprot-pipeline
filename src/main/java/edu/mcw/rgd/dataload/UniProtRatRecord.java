@@ -3,10 +3,8 @@ package edu.mcw.rgd.dataload;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: mtutaj
- * Date: Apr 6, 2010
- * Time: 10:44:47 AM
+ * @author mtutaj
+ * @since Apr 6, 2010
  * represents a single record as read from from source file
  */
 public class UniProtRatRecord {
@@ -30,6 +28,8 @@ public class UniProtRatRecord {
 
     // recommended protein name, or if not available, submitted protein name
     String proteinName;
+
+    String geneName; // as found in 'GN' field
 
     String proteinSequence;
 
@@ -64,17 +64,31 @@ public class UniProtRatRecord {
         xdbList.add(vlink1);
     }
 
-    public void addEnsemblEntry(String ensemblID) {
-        // it could be one of this: ENSRNOT00000016981; ENSRNOP00000016981; ENSRNOG00000010945
-        if( ensemblID!=null && ensemblID.length()>7 ) {
-            if( ensemblID.startsWith("ENSRNOT"))
+    public void addEnsemblEntry(String ensemblID, boolean isHuman) {
+        // it could be one of this: ENSRNOT00000016981; ENSRNOP00000016981; ENSRNOG00000010945 for rat
+        //   or  ENSSSCT00000017610; ENSSSCP00000017132; ENSSSCG00000016174. for pig
+        // so for non-human genes the mask is  len=18
+        //   genes:       ENS???G???????????
+        //   proteins:    ENS???P???????????
+        //   transcripts: ENS???T???????????
+        //and for human:
+        //   genes:       ENSG??????????? len=15
+        //   proteins:    ENSP???????????
+        //   transcripts: ENST???????????
+        if( ensemblID!=null && ensemblID.startsWith("ENS") ) {
+
+            if( ensemblID.length()<15 ) {
+                System.out.println("WARN: unexpected Ensembl Acc: "+ensemblID);
+                return;
+            }
+            char idType = isHuman ? ensemblID.charAt(3) : ensemblID.charAt(6);
+            if( idType=='T' ) {
                 addEntry("EnsemblT", ensemblID, ensemblID, null);
-            else
-            if( ensemblID.startsWith("ENSRNOP"))
+            } else if( idType=='P' ) {
                 addEntry("EnsemblP", ensemblID, ensemblID, null);
-            else
-            if( ensemblID.startsWith("ENSRNOG"))
+            } else if( idType=='G' ) {
                 addEntry("EnsemblG", ensemblID, ensemblID, null);
+            }
         }
     }
 
@@ -170,5 +184,13 @@ public class UniProtRatRecord {
 
     public void setProteinName(String proteinName) {
         this.proteinName = proteinName;
+    }
+
+    public String getGeneName() {
+        return geneName;
+    }
+
+    public void setGeneName(String geneName) {
+        this.geneName = geneName;
     }
 }
