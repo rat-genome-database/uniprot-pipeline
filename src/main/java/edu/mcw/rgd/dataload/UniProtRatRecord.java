@@ -33,8 +33,6 @@ public class UniProtRatRecord {
 
     String proteinSequence;
 
-    List<ProteinDomain> domains = new ArrayList<>();
-
     public UniProtRatRecord(String srcPipeline) {
         setSrcPipeline(srcPipeline);
     }

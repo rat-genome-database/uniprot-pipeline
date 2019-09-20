@@ -116,10 +116,6 @@ public class UniProtFileParser {
 
                 // check organism
                 if( speciesIsCorrect ) {
-                    // fix domain names
-                    for( ProteinDomain domain: rec.domains ) {
-                        domain.cleanupDomainName();
-                    }
                     incomingRecords.add(rec);
                 } else
                     skipRecord++; // count records of species different from rat
@@ -172,11 +168,6 @@ public class UniProtFileParser {
             // extract gene name
             if( line.startsWith("GN   ") ) {
                 parseGeneName(line, rec);
-                continue;
-            }
-            // extract protein feature
-            if( line.startsWith("FT   ") ) {
-                parseProteinFeature(line, rec);
                 continue;
             }
             // extract protein sequence
@@ -247,7 +238,7 @@ public class UniProtFileParser {
     }
 
     /// OX   NCBI_TaxID=442598 {ECO:0000313|EMBL:AXQ06062.1};
-    int parseTaxonId(String lineOX) {
+    static public int parseTaxonId(String lineOX) {
 
         String pattern = "NCBI_TaxID=";
         int posStart = lineOX.indexOf(pattern);
@@ -286,7 +277,7 @@ public class UniProtFileParser {
 
     // analyze the given string starting from 'startingPos' and extract the longest string
     // composed entirely of letters, digits and '_'
-    String extractWord(String str, int startingPos) {
+    public static String extractWord(String str, int startingPos) {
         StringBuilder buf = new StringBuilder(str.length());
         for( int i=startingPos; i<str.length(); i++ ) {
             char c = str.charAt(i);
@@ -351,57 +342,6 @@ public class UniProtFileParser {
                 rec.proteinSequence += seqFragment;
             }
         }
-    }
-
-    void parseProteinFeature(String line, UniProtRatRecord rec) {
-        if( line.startsWith("FT   DOMAIN") ) {
-            inProteinDomain = true;
-            // new protein domain record
-            ProteinDomain domain = new ProteinDomain();
-            domain.aaStartPos = parseFeaturePos(line.substring(14, 20));
-            domain.aaStopPos = parseFeaturePos(line.substring(20, 27));
-            String text = line.substring(34);
-            int dotPos = text.indexOf('.');
-            if( dotPos>0 ) {
-                domain.setDomainName(text.substring(0, dotPos));
-                domain.notes = text.substring(dotPos+1);
-            } else {
-                domain.setDomainName(text);
-            }
-
-            rec.domains.add(domain);
-        } else if( !line.startsWith("FT         ") ) {
-            // feature different than domain
-            inProteinDomain = false;
-        } else { // feature continuation
-            if( inProteinDomain ) {
-                ProteinDomain domain = rec.domains.get(rec.domains.size()-1);
-                String text = line.substring(34);
-                // is the domain name complete?
-                if( domain.getDomainName().endsWith(".") ) {
-                    // domain name is complete -- append notes
-                    domain.notes += text;
-                } else {
-                    // domain name is not complete
-                    int dotPos = text.indexOf('.');
-                    if( dotPos>0 ) {
-                        domain.setDomainName(domain.getDomainName() + " "+text.substring(0, dotPos));
-                        domain.notes = text.substring(dotPos+1);
-                    } else {
-                        domain.setDomainName(domain.getDomainName() + " "+text);
-                    }
-                }
-            }
-        }
-    }
-    boolean inProteinDomain;
-
-    int parseFeaturePos(String str) {
-        String pos = str.trim();
-        if( pos.startsWith("<") || pos.startsWith(">") || pos.startsWith("?") ) {
-            pos = pos.substring(1);
-        }
-        return Integer.parseInt(pos);
     }
 
     // remove any contents in braces

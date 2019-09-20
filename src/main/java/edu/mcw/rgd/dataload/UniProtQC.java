@@ -1,18 +1,12 @@
 package edu.mcw.rgd.dataload;
 
-import edu.mcw.rgd.dao.impl.ProteinDAO;
-import edu.mcw.rgd.dao.impl.TranscriptDAO;
-import edu.mcw.rgd.dao.impl.XdbIdDAO;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
-import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author mtutaj
@@ -27,12 +21,10 @@ public class UniProtQC {
     private int unMatched;
     private int inActiveGene;
     private int newActiveGene;
-    private int strandProblems; // count of lines with strand problems
     private List<String> uniprotSources = new ArrayList<>(2);
     private Map<String, Integer> matchXdbCount = new TreeMap<>();
 
     static Logger logMain = Logger.getLogger("main");
-    static Logger logStrandProblem = Logger.getLogger("strand_problem");
 
     public UniProtQC() {
         uniprotSources.add(PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.SWISSPROT);
@@ -42,7 +34,6 @@ public class UniProtQC {
     public void qc(List<UniProtRatRecord> incomingRecords) throws Exception {
         for( UniProtRatRecord rec: incomingRecords ) {
             if( qc(rec) ) {
-                qcProteinDomains(rec);
                 qcProteinSequence(rec);
             }
         }
@@ -236,196 +227,6 @@ public class UniProtQC {
         }
     }
 
-    static Pattern domainNameCounterPattern = Pattern.compile(" \\d+$");
-
-    void qcProteinDomains( UniProtRatRecord data) throws Exception {
-        // many proteins have the same domain appearing multiple times
-        // f.e. P58365 protein has Cadherin domain appearing 27 times!
-        //   so the domain names are like this: 'Cadherin 1', 'Cadherin 2', ... 'Cadherin 27'
-        // therefore we have to strip the last part and keep only the domain name f.e. 'Cadherin'
-        for (ProteinDomain pd : data.domains) {
-            Matcher m = domainNameCounterPattern.matcher(pd.getDomainName());
-            int counterPos = -1;
-            while( m.find() ) {
-                counterPos = m.start();
-            }
-            if( counterPos>0 ) {
-                pd.setDomainName( pd.getDomainName().substring(0, counterPos));
-            }
-            //logDomain.info(pd.getDomainName() +" =" +data.getUniProtAccId());
-
-            pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
-
-            if( pd.geInRgd!=null ) {
-                pd.loci = positionProteinDomain(pd, data.uniProtAccId);
-            }
-        }
-    }
-
-    List<MapData> positionProteinDomain(ProteinDomain pd, String uniProtAccId) throws Exception {
-
-        List<MapData> results = new ArrayList<>();
-
-        // convert 1-based aaPos into 0-based nucPos
-        int nucStartPos = (pd.aaStartPos-1)*3; // including
-        int lenToGo = (pd.aaStopPos-pd.aaStartPos+1)*3;
-
-        // determine primary assembly
-        TranscriptDAO tdao = new TranscriptDAO();
-        XdbIdDAO xdao = new XdbIdDAO();
-        ProteinDAO pdao = new ProteinDAO();
-
-        int primaryMapKey = MapManager.getInstance().getReferenceAssembly(speciesTypeKey).getKey();
-        CdsUtils utils = new CdsUtils(tdao, primaryMapKey);
-
-        // map protein domain to protein
-        Protein p = pdao.getProteinByUniProtId(uniProtAccId);
-        if( p==null ) {
-            logMain.warn("*** ERROR: unexpected: no protein for "+uniProtAccId);
-            return results;
-        }
-
-        // map protein to ncbi protein acc ids
-        List<XdbId> ncbiProtAccIds = xdao.getXdbIdsByRgdId(XdbId.XDB_KEY_GENEBANKPROT, p.getRgdId());
-        // get NCBI transcript given ncbi protein acc ids
-        for( XdbId xid: ncbiProtAccIds ) {
-            List<Transcript> transcripts = tdao.getTranscriptsByProteinAccId(xid.getAccId());
-            for (Transcript tr : transcripts) {
-                for (MapData md : tr.getGenomicPositions()) {
-                    if( md.getMapKey()!=primaryMapKey ) {
-                        continue;
-                    }
-                    List<CodingFeature> cfs = utils.buildCfList(md);
-
-                    List<MapData> mds;
-                    if( md.getStrand().equals("-") ) {
-                        mds = handleNegativeStrand(cfs, nucStartPos, lenToGo, pd.geInRgd.getRgdId(), uniProtAccId);
-                    } else {
-                        mds = handlePositiveStrand(cfs, nucStartPos, lenToGo, pd.geInRgd.getRgdId(), uniProtAccId);
-                    }
-
-                    // merge all cds chunks of protein domain position into one range
-                    MapData mdRange = null;
-                    for( MapData m: mds ) {
-                        if( mdRange==null ) {
-                            mdRange = m.clone();
-                        } else {
-                            if( m.getStartPos() < mdRange.getStartPos() ) {
-                                mdRange.setStartPos( m.getStartPos() );
-                            }
-                            if( m.getStopPos() > mdRange.getStopPos() ) {
-                                mdRange.setStopPos( m.getStopPos() );
-                            }
-                        }
-                    }
-                    if( mdRange!=null ) {
-                        results.add(mdRange);
-                    }
-                }
-            }
-        }
-        return results;
-    }
-
-    List<MapData> handlePositiveStrand(List<CodingFeature> cfs, int nucStartPos, int lenToGo, int domainRgdId, String uniProtAccId) {
-
-        List<MapData> results = new ArrayList<>();
-
-        // iterate over CDS features
-        for (CodingFeature cf : cfs) {
-            if (cf.getFeatureType() == TranscriptFeature.FeatureType.CDS) {
-                // we found a CDS
-                int cdsLen = cf.getStopPos() - cf.getStartPos() + 1;
-                if (nucStartPos >= cdsLen) {
-                    // nucStartPos is outside of this CDS
-                    nucStartPos -= cdsLen;
-                    continue;
-                }
-
-                // nucStartPos is within this cds
-                //
-                MapData mdDomain = new MapData();
-                mdDomain.setStartPos(cf.getStartPos() + nucStartPos);
-                mdDomain.setChromosome(cf.getChromosome());
-                mdDomain.setMapKey(cf.getMapKey());
-                mdDomain.setSrcPipeline("UniProtKB");
-                mdDomain.setStrand(cf.getStrand());
-                mdDomain.setRgdId(domainRgdId);
-                results.add(mdDomain);
-                mdDomain.setNotes(uniProtAccId+" part "+results.size());
-
-                // is nucStopPos entirely within this CDS
-                int nucStopPos = nucStartPos + lenToGo;
-                if (nucStopPos < cdsLen) {
-                    mdDomain.setStopPos(cf.getStartPos() + nucStopPos);
-                    return results;
-                } else {
-                    // add this part of protein
-                    mdDomain.setStopPos(cf.getStopPos());
-
-                    int domainPartLen = mdDomain.getStopPos() - mdDomain.getStartPos() + 1;
-                    nucStartPos = 0;
-                    lenToGo -= domainPartLen;
-                }
-            }
-        }
-        logStrandProblem.info("plus strand problem "+uniProtAccId+" "+lenToGo);
-        strandProblems++;
-        return results;
-    }
-
-    List<MapData> handleNegativeStrand(List<CodingFeature> cfs, int nucStartPos, int lenToGo, int domainRgdId, String uniProtAccId) {
-
-        List<MapData> results = new ArrayList<>();
-
-        // iterate over CDS features
-        for( int i=cfs.size()-1; i>=0; i-- ) {
-            CodingFeature cf = cfs.get(i);
-            if (cf.getFeatureType() != TranscriptFeature.FeatureType.CDS ) {
-                continue;
-            }
-
-            // we found a CDS
-            int cdsLen = cf.getStopPos() - cf.getStartPos() + 1;
-            if (nucStartPos >= cdsLen) {
-                // nucStartPos is outside of this CDS
-                nucStartPos -= cdsLen;
-                continue;
-            }
-
-            MapData mdDomain = new MapData();
-            mdDomain.setChromosome(cf.getChromosome());
-            mdDomain.setMapKey(cf.getMapKey());
-            mdDomain.setSrcPipeline("UniProtKB");
-            mdDomain.setStrand(cf.getStrand());
-            mdDomain.setRgdId(domainRgdId);
-            results.add(mdDomain);
-            mdDomain.setNotes(uniProtAccId+" part "+results.size());
-
-            // nucStartPos is within this cds
-            // is nucStopPos entirely within this CDS
-            int stopPos = cf.getStopPos() - nucStartPos + 1;
-            int startPos = stopPos - lenToGo + 1;
-            if (startPos >= cf.getStartPos()) {
-                // whole part is within this CDS (i.e. part of this CDS
-                mdDomain.setStartPos(startPos);
-                mdDomain.setStopPos(stopPos);
-                return results;
-            } else {
-                // add this part of protein
-                mdDomain.setStartPos(cf.getStartPos());
-                mdDomain.setStopPos(stopPos);
-
-                int domainPartLen = mdDomain.getStopPos() - mdDomain.getStartPos() + 1;
-                nucStartPos = 0;
-                lenToGo -= domainPartLen;
-            }
-        }
-        logStrandProblem.info("minus strand problem "+uniProtAccId+" "+lenToGo);
-        strandProblems++;
-        return results;
-    }
-
     public void dumpMatchSummary() {
         logMain.info("== MATCH SUMMARY (by match priority) ==");
         for( Map.Entry<String, Integer> entry: matchXdbCount.entrySet() ) {
@@ -471,13 +272,5 @@ public class UniProtQC {
 
     public void setNewActiveGene(int newActiveGene) {
         this.newActiveGene = newActiveGene;
-    }
-
-    public int getStrandProblems() {
-        return strandProblems;
-    }
-
-    public void setStrandProblems(int strandProblems) {
-        this.strandProblems = strandProblems;
     }
 }

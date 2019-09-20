@@ -2,13 +2,8 @@ package edu.mcw.rgd.dataload;
 
 import java.util.*;
 
-import edu.mcw.rgd.dao.impl.MapDAO;
-import edu.mcw.rgd.datamodel.GenomicElement;
-import edu.mcw.rgd.datamodel.MapData;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
-import edu.mcw.rgd.process.Utils;
-import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.log4j.Logger;
 
 /**
@@ -20,9 +15,7 @@ public class UniProtDataValidation {
     java.util.Map<String,Integer> activeXdbIdMap;
     int speciesTypeKey;
     Logger logMain = Logger.getLogger("main");
-
     private Map<Integer, UniProtRecord> records = new HashMap<>();
-    private Map<Integer, List<ProteinDomain>> domainsMap = new HashMap<>();
 
     /**
      * assign incoming data to matching rgd ids;
@@ -30,9 +23,6 @@ public class UniProtDataValidation {
      * @param incomingRecords
      */
     public void mergeIncomingRecords(List<UniProtRatRecord> incomingRecords) throws Exception {
-
-        int insertedDomains = 0;
-        int upToDateDomains = 0;
 
         for( UniProtRatRecord incomingRec: incomingRecords ) {
 
@@ -46,134 +36,17 @@ public class UniProtDataValidation {
 
                 rec.init(activeRgdId, incomingRec);
             }
-
-            // merge protein domains
-            for (ProteinDomain pd : incomingRec.domains) {
-
-                if (pd.geInRgd == null) {
-                    GenomicElement ge = dbDao.insertDomainName(pd.getDomainName());
-                    // if ge has been inserted, its objectStatus property will be null
-                    if (ge.getObjectStatus() == null) {
-                        insertedDomains++;
-                    } else {
-                        upToDateDomains++;
-                    }
-                    pd.geInRgd = ge;
-                }
-
-                List<ProteinDomain> list = domainsMap.get(pd.geInRgd.getRgdId());
-                if (list == null) {
-                    list = new ArrayList<>();
-                    domainsMap.put(pd.geInRgd.getRgdId(), list);
-                }
-                list.add(pd);
-            }
         }
-
-        if( insertedDomains!=0 ) {
-            logMain.info("DOMAINS INSERTED: " + insertedDomains);
-        }
-        logMain.info("DOMAINS UP-TO-DATE: "+upToDateDomains);
     }
 
     public void load() throws Exception {
-
-        int primaryMapKey = MapManager.getInstance().getReferenceAssembly(speciesTypeKey).getKey();
 
         logMain.debug(" loading uniprot xdb ids ...");
         for( UniProtRecord rec: records.values() ) {
             load(rec);
         }
 
-        if(false) { // at the moment skip loading of protein domain positions
-            logMain.debug(" loading protein domains ...");
-            for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
-                logMain.debug("processing PD " + entry.getKey());
-
-                List<MapData> domainLoci = new ArrayList<>();
-                for (ProteinDomain pd : entry.getValue()) {
-                    if (pd.loci != null) {
-                        for (MapData md : pd.loci) {
-                            addDomainLoci(domainLoci, md);
-                        }
-                    }
-                }
-                updateDomainLociInDb(entry.getKey(), primaryMapKey, "UniProtKB", domainLoci);
-            }
-        }
-
         logMain.debug(" loading OK!");
-    }
-
-    void addDomainLoci(List<MapData> loci, MapData md) {
-
-        // see for duplicate loci, with same chr, strand, start and stop
-        for( MapData mdLoci: loci ) {
-            if( mdLoci.getChromosome().equals(md.getChromosome())
-                    && mdLoci.getStrand().equals(md.getStrand())
-                    && mdLoci.getStartPos().equals(md.getStartPos())
-                    && mdLoci.getStopPos().equals(md.getStopPos()) ) {
-
-                logMain.warn("-- protein-domain: merging duplicate loci");
-                if( Utils.isStringEmpty(mdLoci.getNotes()) ) {
-                    mdLoci.setNotes(md.getNotes());
-                } else if( !Utils.isStringEmpty(md.getNotes()) ) {
-                    mdLoci.setNotes( mdLoci.getNotes()+"; "+md.getNotes() );
-                }
-            }
-        }
-    }
-
-    void updateDomainLociInDb( int domainRgdId, int mapKey, String srcPipeline, List<MapData> loci ) throws Exception {
-        MapDAO mdao = new MapDAO();
-        List<MapData> mdsInRgd = mdao.getMapData(domainRgdId, mapKey, srcPipeline);
-
-        // if incoming locus has a match in RGD, remove them from the lists
-        List<MapData> mdsUpToDate = new ArrayList<>(mdsInRgd.size());
-
-        Iterator<MapData> it = loci.iterator();
-        while( it.hasNext() ) {
-            MapData mdIncoming = it.next();
-
-            // find a match in RGD
-            Iterator<MapData> itInRgd = mdsInRgd.iterator();
-            while( itInRgd.hasNext() ) {
-                MapData mdInRgd = itInRgd.next();
-                if( mdInRgd.equalsByGenomicCoords(mdIncoming) ) {
-                    mdsUpToDate.add(mdInRgd);
-                    itInRgd.remove();
-                    it.remove();
-                    break;
-                }
-            }
-        }
-
-        if( !mdsInRgd.isEmpty() ) {
-            logMain.warn("LOCI to be removed from RGD");
-        }
-        if( !loci.isEmpty() ) {
-            dbDao.insertMapData(loci);
-        }
-    }
-
-    class DomainLociComparator implements Comparator<MapData> {
-
-        @Override
-        public int compare(MapData o1, MapData o2) {
-            int r = o1.getStartPos() - o2.getStartPos();
-            if( r!=0 ) {
-                return r;
-            }
-            r = o1.getStopPos() - o2.getStopPos();
-            if( r!=0 ) {
-                return r;
-            }
-            r = o1.getChromosome().compareTo(o2.getChromosome());
-            if( r!=0 ) {
-                return r;
-            }
-            return o1.getStrand().compareTo(o2.getStrand());
-        }
     }
 
     public void load(UniProtRecord rec) throws Exception {

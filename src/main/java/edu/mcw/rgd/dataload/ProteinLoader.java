@@ -20,7 +20,6 @@ public class ProteinLoader {
 
     private java.util.Map<Integer, List<XdbId>> secondaryIdMap;
 
-    private String version;
     private UniProtDAO dao;
     private int speciesTypeKey;
     private String assocType;
@@ -54,9 +53,6 @@ public class ProteinLoader {
 
             // handle protein_to_gene associations
             handleProteinToGeneAssociations(rec, protein);
-
-            // handle protein_to_domain associations
-            handleProteinToDomainAssociations(rec, protein);
 
             // handle uniprot secondary accession ids
             handleXdbIds(rec, protein);
@@ -177,37 +173,6 @@ public class ProteinLoader {
         manager.incrementCounter("  protein-to-gene assoc deleted ", assocToBeDeleted.size());
     }
 
-    void handleProteinToDomainAssociations(UniProtRatRecord rec, Protein protein) throws Exception {
-
-        // create incoming associations
-        List<Association> assocIncoming = new ArrayList<>();
-        for (ProteinDomain domain : rec.domains) {
-            if (domain.geInRgd == null) {
-                continue;
-            }
-            Association assoc = new Association();
-            assoc.setSrcPipeline(rec.getSrcPipeline());
-            assoc.setAssocType("protein_to_domain");
-            assoc.setMasterRgdId(protein.getRgdId());
-            assoc.setDetailRgdId(domain.geInRgd.getRgdId());
-            assocIncoming.add(assoc);
-        }
-
-        // get existing associations in RGD
-        List<Association> assocInRgd = getDao().getAssociationsForMasterRgdId(protein.getRgdId(), "protein_to_domain");
-
-        Collection<Association> assocMatched = CollectionUtils.intersection(assocIncoming, assocInRgd);
-        Collection<Association> assocToBeInserted = CollectionUtils.subtract(assocIncoming, assocInRgd);
-        Collection<Association> assocToBeDeleted = CollectionUtils.subtract(assocInRgd, assocIncoming);
-
-        getDao().insertAssociations(assocToBeInserted);
-        getDao().deleteAssociations(assocToBeDeleted);
-
-        manager.incrementCounter("  protein-to-domain assoc matched ", assocMatched.size());
-        manager.incrementCounter("  protein-to-domain assoc inserted ", assocToBeInserted.size());
-        manager.incrementCounter("  protein-to-domain assoc deleted ", assocToBeDeleted.size());
-    }
-
     void handleXdbIds(UniProtRatRecord rec, Protein protein) throws Exception {
 
         // create incoming xdb ids
@@ -244,14 +209,6 @@ public class ProteinLoader {
             manager.incrementCounter("  protein secondary uniprot ids deleted ", xdbIdsToBeDeleted.size());
         }
         manager.incrementCounter("  protein secondary uniprot ids matched ", xdbIdsMatched.size());
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getVersion() {
-        return version;
     }
 
     public void setDao(UniProtDAO dao) {

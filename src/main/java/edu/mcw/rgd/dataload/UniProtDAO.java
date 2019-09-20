@@ -383,6 +383,10 @@ public class UniProtDAO extends AbstractDAO {
         return associationDAO.getAssociationsForMasterRgdId(masterRgdId, assocType);
     }
 
+    public List<Association> getAssociationsByType(String assocType, int speciesTypeKey) throws Exception {
+        return associationDAO.getAssociationsByType(assocType, speciesTypeKey);
+    }
+
     public void insertAssociations(Collection<Association> assocsForInsert) throws Exception {
 
         for( Association assoc: assocsForInsert ) {

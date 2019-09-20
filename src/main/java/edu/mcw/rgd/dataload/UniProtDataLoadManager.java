@@ -70,6 +70,7 @@ public class UniProtDataLoadManager {
             String fileName = null, fileName2=null;
             boolean downloadOnly = false;
             int speciesTypeKey = SpeciesType.ALL;
+            boolean loadProteinDomains = false;
 
             for( int i=0; i<args.length; i++ ) {
                 // optional: only download source files
@@ -102,6 +103,10 @@ public class UniProtDataLoadManager {
                         loadRefSeq2UniprotMappings = true;
                         break;
 
+                    case "--loadProteinDomains":
+                        loadProteinDomains = true;
+                        break;
+
                     case "--deletedAccessions":
                         DeletedAccessions module = (DeletedAccessions) (bf.getBean("deletedAccessions"));
                         module.run();
@@ -129,6 +134,9 @@ public class UniProtDataLoadManager {
                 return;
             }
 
+            if( loadProteinDomains ) {
+                dataManager.loadProteinDomains();
+            }
             dataManager.startPipeline(fileName, fileName2, speciesTypeKey);
         }
         catch( Exception e ) {
@@ -284,9 +292,6 @@ public class UniProtDataLoadManager {
             logMain.info("newActiveGene: "+qc.getNewActiveGene());
         if( qc.getUnMatched()>0 )
             logMain.info("unMatched    : "+qc.getUnMatched());
-        if( qc.getStrandProblems()>0 ) {
-            logMain.info("strand problems : " + qc.getStrandProblems()+"   ; details in strand_problem.log");
-        }
 
         dumpGlobalCounters();
 
@@ -325,6 +330,13 @@ public class UniProtDataLoadManager {
             count += delta;
         counters.put(counterName, count);
         return count;
+    }
+
+    void loadProteinDomains() throws Exception {
+
+        ProteinDomainLoader loader = new ProteinDomainLoader(speciesTypeKey, dao);
+        loader.run(fileParser.download(fileParser.getFileName()), fileParser.download(fileParser.getFileName2()));
+        System.exit(0);
     }
 
     public int incrementCounter(String counterName) {

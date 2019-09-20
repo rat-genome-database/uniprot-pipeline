@@ -15,7 +15,6 @@ public class UniProtRecord {
     private Map<String,Integer> activeXdbIdMap;
     private int rgdId;
     private List<XdbId> xdbIds = new ArrayList<>();
-    List<ProteinDomain> domains = new ArrayList<>();
 
     public UniProtRecord(Map<String,Integer> activeXdbIdMap) {
         this.activeXdbIdMap = activeXdbIdMap;
@@ -40,8 +39,6 @@ public class UniProtRecord {
                 }
             }
         }
-
-        domains.addAll(rec.domains);
     }
 
     // convert external database name, as found in the source file, to XDB_KEY value, as found in RGD_XDB table

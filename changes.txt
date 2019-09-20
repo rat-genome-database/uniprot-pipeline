@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-09-20
+  separated protein domain handling code into separate class ProteinDomainLoader; added loading of domain loci
+
 2019-09-17
   fixed loading of Ensembl IDs for species other than rat
 

@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build 2019-09-17" />
+        <property name="version" value="UniProtKB pipeline -- build 2019-09-20" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -77,7 +77,6 @@
 	</bean>
 
     <bean id="proteinLoader" class="edu.mcw.rgd.dataload.ProteinLoader">
-        <property name="version" value="Protein Loader ver 1.2.2,  Oct 5, 2018"/>
         <property name="assocType" value="protein_to_gene" />
         <property name="sequenceType" value="uniprot_seq" />
         <property name="oldSequenceType" value="old_uniprot_seq" />
