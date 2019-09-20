@@ -151,6 +151,10 @@ public class UniProtDAO extends AbstractDAO {
         return xdbidDAO.getXdbIds(filter, SpeciesType.ALL, RgdId.OBJECT_KEY_PROTEINS);
     }
 
+    public List<XdbId> getXdbIdsByRgdId(int xdbKey, int rgdId) throws Exception {
+        return xdbidDAO.getXdbIdsByRgdId(xdbKey, rgdId);
+    }
+
     /**
      * insert a number of XdbIds into database
      * @param xdbIds a list of XdbId objects to insert
@@ -533,5 +537,9 @@ public class UniProtDAO extends AbstractDAO {
 
     public int insertMapData(List<MapData> mds) throws Exception {
         return mapDAO.insertMapData(mds);
+    }
+
+    public List<MapData> getMapData(int rgdId, int mapKey, String srcPipeline) throws Exception {
+        return mapDAO.getMapData(rgdId, mapKey, srcPipeline);
     }
 }

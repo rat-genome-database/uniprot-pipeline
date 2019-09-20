@@ -1,8 +1,6 @@
 package edu.mcw.rgd.dataload;
 
-import edu.mcw.rgd.dao.impl.MapDAO;
 import edu.mcw.rgd.dao.impl.TranscriptDAO;
-import edu.mcw.rgd.dao.impl.XdbIdDAO;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
@@ -24,9 +22,7 @@ public class ProteinDomainLoader {
     private int speciesTypeKey;
     private UniProtDAO dao;
 
-    MapDAO mdao = new MapDAO();
     TranscriptDAO tdao = new TranscriptDAO();
-    XdbIdDAO xdao = new XdbIdDAO();
 
     private int primaryMapKey;
     private int taxonid;
@@ -62,14 +58,8 @@ public class ProteinDomainLoader {
 
         // populate 'domains' object
         parse(outFileName);
-        System.out.println("PROTEIN RECORDS PARSED: "+domains.size());
 
         qc();
-
-        if( strandProblems!=0 ) {
-            log.info("strand problems : " + strandProblems+"   ; details in strand_problem.log");
-        }
-
         load();
 
         log.info("END for "+speciesName);
@@ -77,7 +67,7 @@ public class ProteinDomainLoader {
     }
 
     void processFile(String fileName, BufferedWriter out) throws Exception {
-        log.info("starting processing of "+fileName);
+        log.info(" processing "+fileName);
 
         // open input stream
         BufferedReader reader = Utils.openReader(fileName);
@@ -174,6 +164,8 @@ public class ProteinDomainLoader {
             parseProteinFeature(line, acc);
         }
         in.close();
+
+        log.info("PROTEIN DOMAIN RECORDS PARSED: "+domains.size());
     }
 
     void parseProteinFeature(String line, String acc) {
@@ -208,12 +200,23 @@ public class ProteinDomainLoader {
     }
 
     void qc() throws Exception {
+
+        Set<String> domainNames = new HashSet<>();
+
         for( ProteinDomain pd: domains ) {
             pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
 
             if( pd.geInRgd!=null ) {
                 pd.loci = positionProteinDomain(pd, pd.uniprotAcc);
             }
+
+            domainNames.add(pd.getDomainName());
+        }
+
+        log.info("PROTEIN DOMAIN COUNT: "+domainNames.size());
+
+        if( strandProblems!=0 ) {
+            log.info("STRAND PROBLEMS : " + strandProblems+"   ; details in strand_problem.log");
         }
     }
 
@@ -236,7 +239,7 @@ public class ProteinDomainLoader {
         }
 
         // map protein to ncbi protein acc ids
-        List<XdbId> ncbiProtAccIds = xdao.getXdbIdsByRgdId(XdbId.XDB_KEY_GENEBANKPROT, p.getRgdId());
+        List<XdbId> ncbiProtAccIds = dao.getXdbIdsByRgdId(XdbId.XDB_KEY_GENEBANKPROT, p.getRgdId());
         // get NCBI transcript given ncbi protein acc ids
         for( XdbId xid: ncbiProtAccIds ) {
             List<Transcript> transcripts = tdao.getTranscriptsByProteinAccId(xid.getAccId());
@@ -505,7 +508,7 @@ public class ProteinDomainLoader {
             logDomainPos.debug("DOMAIN_RGD:" + domainRgdId + " MAP_KEY:" + mapKey+"  c"+md.getChromosome()+":"+md.getStartPos()+".."+md.getStopPos()+" ("+md.getStrand()+")");
         }
 
-        List<MapData> mdsInRgd = mdao.getMapData(domainRgdId, mapKey, srcPipeline);
+        List<MapData> mdsInRgd = dao.getMapData(domainRgdId, mapKey, srcPipeline);
 
         // if incoming locus has a match in RGD, remove them from the lists
         List<MapData> mdsUpToDate = new ArrayList<>(mdsInRgd.size());
