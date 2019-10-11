@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-10-11
+  protein match override: A0A0H2UH92 moved to gene Dna2 RGD:1306791 instead of Slc25a16 RGD:1311311
+
 2019-09-20
   separated protein domain handling code into separate class ProteinDomainLoader; added loading of domain loci
 

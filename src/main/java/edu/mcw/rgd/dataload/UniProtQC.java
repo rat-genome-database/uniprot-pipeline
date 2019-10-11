@@ -34,6 +34,18 @@ public class UniProtQC {
     public void qc(List<UniProtRatRecord> incomingRecords) throws Exception {
         for( UniProtRatRecord rec: incomingRecords ) {
             if( qc(rec) ) {
+
+                if(rec.getUniProtAccId().equals("A0A0H2UH92") ) {
+                    // in Oct 2019, Stan agreed, that protein A0A0H2UH92 has been mistakenly associated with gene Slc25a16 RGD:1311311
+                    // instead of Dna2 RGD:1306791
+                    // so we override this association here
+                    if( rec.matchingRgdIds.contains(1311311) ) {
+                        int index = rec.matchingRgdIds.indexOf(1311311);
+                        rec.matchingRgdIds.set(index, 1306791);
+                        System.out.println("A0A0H2UH92 override: replaced gene association RGD:1311311 -> RGD:1306791");
+                    }
+                }
+
                 qcProteinSequence(rec);
             }
         }
