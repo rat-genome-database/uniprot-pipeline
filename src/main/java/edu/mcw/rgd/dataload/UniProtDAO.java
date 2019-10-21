@@ -5,6 +5,7 @@ import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.PipelineLogger;
+import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -309,7 +310,11 @@ public class UniProtDAO extends AbstractDAO {
 
     private int deleteStaleRows(String srcPipeline, int speciesTypeKey) throws Exception {
 
-        List<XdbId> staleXdbIds = xdbidDAO.getXdbIdsModifiedBefore(this.getProcessingStartTime(), srcPipeline, speciesTypeKey);
+        // there could be slight time difference between app server and db server, that could cause
+        // erroneous classification of some data as obsolete; therefore we consider as obsolete annotations that are older than 1 hour
+        Date cutoffTime = Utils.addHoursToDate(getProcessingStartTime(), -1);
+
+        List<XdbId> staleXdbIds = xdbidDAO.getXdbIdsModifiedBefore(cutoffTime, srcPipeline, speciesTypeKey);
         for( XdbId xdbId: staleXdbIds ) {
             logDeletedIds.info("DELETE_STALE|"+xdbId.dump("|")+"|species:"+UniProtDataLoadManager.getInstance().getSpeciesTypeKey());
             if( _deletedStaleRgdIds.add(xdbId.getRgdId()) ) {

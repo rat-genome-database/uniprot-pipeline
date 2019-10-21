@@ -537,26 +537,4 @@ public class ProteinDomainLoader {
             dao.insertMapData(loci);
         }
     }
-
-    /*
-    class DomainLociComparator implements Comparator<MapData> {
-
-        @Override
-        public int compare(MapData o1, MapData o2) {
-            int r = o1.getStartPos() - o2.getStartPos();
-            if( r!=0 ) {
-                return r;
-            }
-            r = o1.getStopPos() - o2.getStopPos();
-            if( r!=0 ) {
-                return r;
-            }
-            r = o1.getChromosome().compareTo(o2.getChromosome());
-            if( r!=0 ) {
-                return r;
-            }
-            return o1.getStrand().compareTo(o2.getStrand());
-        }
-    }
-    */
 }

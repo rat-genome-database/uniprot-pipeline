@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-10-21
+  fixed potential problem with handling stale (obsolete) data
+
 2019-10-11
   protein match override: A0A0H2UH92 moved to gene Dna2 RGD:1306791 instead of Slc25a16 RGD:1311311
 
