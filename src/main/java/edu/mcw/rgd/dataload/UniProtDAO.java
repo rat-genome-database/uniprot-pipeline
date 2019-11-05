@@ -41,9 +41,9 @@ public class UniProtDAO extends AbstractDAO {
     private SequenceDAO seqDAO = new SequenceDAO();
     private XdbIdDAO xdbidDAO = new XdbIdDAO();
 
-    private int rowsDeleted;
-    private int rowsInserted;
-    private int rowsMatched;
+    private int geneXdbIdsDeleted;
+    private int geneXdbIdsInserted;
+    private int geneXdbIdsMatched;
     private Date processingStartTime;
     private int staleRowsDeleted;
     private int aliasesInserted;
@@ -169,7 +169,6 @@ public class UniProtDAO extends AbstractDAO {
         int rowsAffected = xdbIds.size();
         if( rowsAffected>0 ) {
             xdbidDAO.insertXdbs(xdbIds);
-            this.rowsInserted += rowsAffected;
         }
 
         String species = "";
@@ -186,6 +185,7 @@ public class UniProtDAO extends AbstractDAO {
                 if( _insertedRgdIds.add(xdbId.getRgdId()) ) {
                     logInsertedIds.debug("INSERTED "+xdbId.getRgdId());
                 }
+                this.geneXdbIdsInserted ++;
             } else if( objectKey==RgdId.OBJECT_KEY_PROTEINS ) {
                 logProteinsXdbIds.info(msg);
             }
@@ -221,13 +221,13 @@ public class UniProtDAO extends AbstractDAO {
                     if (_deletedRgdIds.add(xdbId.getRgdId())) {
                         logDeletedIds.info("DELETED RGD:" + xdbId.getRgdId());
                     }
+                    geneXdbIdsDeleted ++;
                 } else if( objectKey==RgdId.OBJECT_KEY_PROTEINS ) {
                     logProteinsXdbIds.info(msg);
                 }
             }
 
             deleteXdbIds(xdbIds);
-            rowsDeleted += rowsAffected;
         }
         return rowsAffected;
     }
@@ -284,7 +284,7 @@ public class UniProtDAO extends AbstractDAO {
         int rowsAffected = accXdbKeys.size();
         if( rowsAffected>0 ) {
             xdbidDAO.updateModificationDate(accXdbKeys);
-            rowsMatched += rowsAffected;
+            geneXdbIdsMatched += rowsAffected;
         }
         return rowsAffected;
     }
@@ -334,27 +334,27 @@ public class UniProtDAO extends AbstractDAO {
     static Set<Integer> _deletedStaleRgdIds = new HashSet<>();
 
     public int getRowsDeleted() {
-        return rowsDeleted;
+        return geneXdbIdsDeleted;
     }
 
     public void setRowsDeleted(int rowsDeleted) {
-        this.rowsDeleted = rowsDeleted;
+        this.geneXdbIdsDeleted = rowsDeleted;
     }
 
     public int getRowsInserted() {
-        return rowsInserted;
+        return geneXdbIdsInserted;
     }
 
     public void setRowsInserted(int rowsInserted) {
-        this.rowsInserted = rowsInserted;
+        this.geneXdbIdsInserted = rowsInserted;
     }
 
     public int getRowsMatched() {
-        return rowsMatched;
+        return geneXdbIdsMatched;
     }
 
     public void setRowsMatched(int rowsMatched) {
-        this.rowsMatched = rowsMatched;
+        this.geneXdbIdsMatched = rowsMatched;
     }
 
     public Date getProcessingStartTime() {
@@ -542,6 +542,14 @@ public class UniProtDAO extends AbstractDAO {
 
     public int insertMapData(List<MapData> mds) throws Exception {
         return mapDAO.insertMapData(mds);
+    }
+
+    public int updateMapData(MapData md) throws Exception {
+        return mapDAO.updateMapData(md);
+    }
+
+    public int deleteMapData(List<MapData> mds) throws Exception {
+        return mapDAO.deleteMapData(mds);
     }
 
     public List<MapData> getMapData(int rgdId, int mapKey, String srcPipeline) throws Exception {

@@ -2,6 +2,7 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.dao.impl.TranscriptDAO;
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.commons.collections.CollectionUtils;
@@ -29,12 +30,11 @@ public class ProteinDomainLoader {
 
     private Logger log = Logger.getLogger("domains");
     private Logger logStrandProblem = Logger.getLogger("strand_problem");
-    private List<ProteinDomain> domains = new ArrayList<>();
     private int strandProblems; // count of lines with strand problems
 
     Logger logDomainPos = Logger.getLogger("domain_pos");
     private java.util.Map<Integer, List<ProteinDomain>> domainsMap = new HashMap<>();
-
+    CounterPool counters = new CounterPool();
 
     public ProteinDomainLoader(int speciesTypeKey, UniProtDAO dao) throws Exception {
         this.speciesTypeKey = speciesTypeKey;
@@ -48,7 +48,8 @@ public class ProteinDomainLoader {
         String speciesName = SpeciesType.getCommonName(speciesTypeKey);
         log.info("START for "+speciesName);
 
-        // parse sprot and trembl files and extract lines with primary accession ids and protein domain names
+        // parse sprot and trembl files and extract lines with primary accession ids and protein domain info
+        // store this as a lean info file
         String outFileName = "data/"+speciesName.toLowerCase()+"_domains.txt";
         BufferedWriter out = new BufferedWriter(new FileWriter(outFileName));
         processFile(fileName1, out);
@@ -56,11 +57,13 @@ public class ProteinDomainLoader {
         out.write("//\n");
         out.close();
 
-        // populate 'domains' object
-        parse(outFileName);
+        // parse the lean source file and create ProteinDomain objects
+        List<ProteinDomain> domains = parse(outFileName);
 
-        qc();
-        load();
+        qc(domains);
+        load(domains);
+
+        log.info(counters.dumpAlphabetically());
 
         log.info("END for "+speciesName);
         log.info("");
@@ -142,7 +145,9 @@ public class ProteinDomainLoader {
         reader.close();
     }
 
-    void parse(String ftFileName) throws IOException {
+    List<ProteinDomain> parse(String ftFileName) throws IOException {
+        List<ProteinDomain> domains = new ArrayList<>();
+
         BufferedReader in = Utils.openReader(ftFileName);
 
         String line;
@@ -161,17 +166,23 @@ public class ProteinDomainLoader {
             }
 
             // extract protein feature
-            parseProteinFeature(line, acc);
+            ProteinDomain pd = parseProteinFeature(line, acc);
+            if( pd!=null ) {
+                domains.add(pd);
+            }
         }
         in.close();
 
         log.info("PROTEIN DOMAIN RECORDS PARSED: "+domains.size());
+        return domains;
     }
 
-    void parseProteinFeature(String line, String acc) {
+    ProteinDomain parseProteinFeature(String line, String acc) {
+        ProteinDomain domain = null;
+
         if( line.startsWith("FT   DOMAIN") ) {
             // new protein domain record
-            ProteinDomain domain = new ProteinDomain();
+            domain = new ProteinDomain();
             domain.uniprotAcc = acc;
             domain.aaStartPos = parseFeaturePos(line.substring(14, 20));
             domain.aaStopPos = parseFeaturePos(line.substring(20, 27));
@@ -184,11 +195,10 @@ public class ProteinDomainLoader {
                 domain.setDomainName(text);
             }
 
-            domains.add(domain);
-
             domain.cleanupDomainName();
             domain.qcDomainName();
         }
+        return domain;
     }
 
     int parseFeaturePos(String str) {
@@ -199,7 +209,7 @@ public class ProteinDomainLoader {
         return Integer.parseInt(pos);
     }
 
-    void qc() throws Exception {
+    void qc(List<ProteinDomain> domains) throws Exception {
 
         Set<String> domainNames = new HashSet<>();
 
@@ -379,7 +389,7 @@ public class ProteinDomainLoader {
         return results;
     }
 
-    void load() throws Exception {
+    void load(List<ProteinDomain> domains) throws Exception {
         int insertedDomains = 0;
         int upToDateDomains = 0;
 
@@ -412,11 +422,11 @@ public class ProteinDomainLoader {
         }
         log.info("DOMAINS UP-TO-DATE: "+upToDateDomains);
 
-        handleProteinToDomainAssociations();
+        handleProteinToDomainAssociations(domains);
         handleDomainLoci();
     }
 
-    void handleProteinToDomainAssociations() throws Exception {
+    void handleProteinToDomainAssociations(List<ProteinDomain> domains) throws Exception {
 
         log.debug("start associations");
 
@@ -492,7 +502,12 @@ public class ProteinDomainLoader {
                     mdLoci.setNotes(md.getNotes());
                 } else if( !Utils.isStringEmpty(md.getNotes()) ) {
                     if( !mdLoci.getNotes().contains(md.getNotes()) ) {
-                        mdLoci.setNotes(mdLoci.getNotes() + "; " + md.getNotes());
+                        // merge notes alphabetically
+                        String[] tokens = mdLoci.getNotes().split("; ");
+                        Set<String> tokenSet = new TreeSet<>(Arrays.asList(tokens));
+                        tokenSet.add(md.getNotes());
+                        String newNotes = Utils.concatenate(tokenSet, "; ");
+                        mdLoci.setNotes(newNotes);
                     }
                 }
                 return;
@@ -504,15 +519,27 @@ public class ProteinDomainLoader {
 
     void updateDomainLociInDb( int domainRgdId, int mapKey, String srcPipeline, List<MapData> loci ) throws Exception {
 
+        /*
+        // sort maps-data by chromosome and pos
+        Collections.sort(loci, new Comparator<MapData>() {
+            @Override
+            public int compare(MapData o1, MapData o2) {
+                int r = o1.getChromosome().compareTo(o2.getChromosome());
+                if( r!=0 ) {
+                    return r;
+                }
+                return o1.getStartPos() - o2.getStartPos();
+            }
+        });
+
         for( MapData md: loci ) {
             logDomainPos.debug("DOMAIN_RGD:" + domainRgdId + " MAP_KEY:" + mapKey+"  c"+md.getChromosome()+":"+md.getStartPos()+".."+md.getStopPos()+" ("+md.getStrand()+")");
         }
+        */
 
         List<MapData> mdsInRgd = dao.getMapData(domainRgdId, mapKey, srcPipeline);
 
         // if incoming locus has a match in RGD, remove them from the lists
-        List<MapData> mdsUpToDate = new ArrayList<>(mdsInRgd.size());
-
         Iterator<MapData> it = loci.iterator();
         while( it.hasNext() ) {
             MapData mdIncoming = it.next();
@@ -522,19 +549,38 @@ public class ProteinDomainLoader {
             while( itInRgd.hasNext() ) {
                 MapData mdInRgd = itInRgd.next();
                 if( mdInRgd.equalsByGenomicCoords(mdIncoming) ) {
-                    mdsUpToDate.add(mdInRgd);
+                    // check if notes are different
+                    if( !Utils.stringsAreEqualIgnoreCase(mdInRgd.getNotes(), mdIncoming.getNotes()) ) {
+                        // update notes
+                        logDomainPos.info("updating notes for "+mdInRgd.toString());
+                        logDomainPos.info("  old notes: "+mdInRgd.getNotes());
+                        logDomainPos.info("  new notes: "+mdIncoming.getNotes());
+                        mdInRgd.setNotes(mdIncoming.getNotes());
+                        dao.updateMapData(mdInRgd);
+                        counters.increment("LOCI_UPDATED_NOTES");
+                    }
                     itInRgd.remove();
                     it.remove();
+                    counters.increment("LOCI_UP_TO_DATE");
                     break;
                 }
             }
         }
 
         if( !mdsInRgd.isEmpty() ) {
-            log.warn("LOCI to be removed from RGD");
+            for( MapData md: mdsInRgd ) {
+                logDomainPos.info("LOCUS deleted: "+md.dump("|"));
+            }
+            int cnt = dao.deleteMapData(mdsInRgd);
+            counters.add("LOCI_DELETED", cnt);
         }
+
         if( !loci.isEmpty() ) {
-            dao.insertMapData(loci);
+            for( MapData md: mdsInRgd ) {
+                logDomainPos.info("LOCUS inserted: "+md.dump("|"));
+            }
+            int cnt = dao.insertMapData(loci);
+            counters.add("LOCI_INSERTED", cnt);
         }
     }
 }
