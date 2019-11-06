@@ -9,10 +9,7 @@ fi
 
 cd $APP_HOME
 
-speciesList=( "rat" "mouse" "human" "dog" "bonobo" "squirrel" "chinchilla" "pig" )
-
-for species in "${speciesList[@]}"; do
-    $APP_HOME/_run.sh -species "$species" --loadProteinDomains $@  2>&1
-done
+# processed species and assemblies are read from properties/AppConfigure.xml
+$APP_HOME/_run.sh -species "$species" --loadProteinDomains $@  2>&1
 
 mailx -s "[$SERVER] UniProtKB protein domain done" $EMAIL_LIST < $APP_HOME/logs/domains.log

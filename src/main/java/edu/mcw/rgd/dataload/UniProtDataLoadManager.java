@@ -135,7 +135,9 @@ public class UniProtDataLoadManager {
             }
 
             if( loadProteinDomains ) {
-                dataManager.loadProteinDomains();
+                ProteinDomainLoader module = (ProteinDomainLoader) (bf.getBean("proteinDomainLoader"));
+                module.run(dataManager.fileParser);
+                return;
             }
             dataManager.startPipeline(fileName, fileName2, speciesTypeKey);
         }
@@ -330,13 +332,6 @@ public class UniProtDataLoadManager {
             count += delta;
         counters.put(counterName, count);
         return count;
-    }
-
-    void loadProteinDomains() throws Exception {
-
-        ProteinDomainLoader loader = new ProteinDomainLoader(speciesTypeKey, dao);
-        loader.run(fileParser.download(fileParser.getFileName()), fileParser.download(fileParser.getFileName2()));
-        System.exit(0);
     }
 
     public int incrementCounter(String counterName) {

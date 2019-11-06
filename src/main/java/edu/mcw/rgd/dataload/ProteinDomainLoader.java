@@ -5,7 +5,7 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -13,20 +13,21 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.Map;
 
 /**
  * load protein domain objects
  */
 public class ProteinDomainLoader {
 
-    private int speciesTypeKey;
-    private UniProtDAO dao;
+    private List<Integer> processedMapKeys;
+    private String srcPipeline;
+
+    private UniProtDAO dao = new UniProtDAO();
 
     TranscriptDAO tdao = new TranscriptDAO();
 
-    private int primaryMapKey;
-    private int taxonid;
+    private edu.mcw.rgd.datamodel.Map assembly; // current assembly being processed
+    private int taxonid; // current taxonid
 
     private Logger log = Logger.getLogger("domains");
     private Logger logStrandProblem = Logger.getLogger("strand_problem");
@@ -36,17 +37,22 @@ public class ProteinDomainLoader {
     private java.util.Map<Integer, List<ProteinDomain>> domainsMap = new HashMap<>();
     CounterPool counters = new CounterPool();
 
-    public ProteinDomainLoader(int speciesTypeKey, UniProtDAO dao) throws Exception {
-        this.speciesTypeKey = speciesTypeKey;
-        this.dao = dao;
-        this.taxonid = SpeciesType.getTaxonomicId(speciesTypeKey);
-        primaryMapKey = MapManager.getInstance().getReferenceAssembly(speciesTypeKey).getKey();
+    public void run(UniProtFileParser fileParser) throws Exception {
+        List<Integer> mapKeys = new ArrayList<>(getProcessedMapKeys());
+        Collections.shuffle(mapKeys);
+
+        for( int mapKey: mapKeys ) {
+            this.assembly = MapManager.getInstance().getMap(mapKey);
+            this.taxonid = SpeciesType.getTaxonomicId(assembly.getSpeciesTypeKey());
+            fileParser.setSpecies(assembly.getSpeciesTypeKey());
+            run(fileParser.download(fileParser.getFileName()), fileParser.download(fileParser.getFileName2()));
+        }
     }
 
     public void run(String fileName1, String fileName2) throws Exception {
 
-        String speciesName = SpeciesType.getCommonName(speciesTypeKey);
-        log.info("START for "+speciesName);
+        String speciesName = SpeciesType.getCommonName(assembly.getSpeciesTypeKey());
+        log.info("START for "+speciesName +" "+assembly.getName());
 
         // parse sprot and trembl files and extract lines with primary accession ids and protein domain info
         // store this as a lean info file
@@ -65,7 +71,7 @@ public class ProteinDomainLoader {
 
         log.info(counters.dumpAlphabetically());
 
-        log.info("END for "+speciesName);
+        log.info("END for "+speciesName +" "+assembly.getName());
         log.info("");
     }
 
@@ -239,7 +245,7 @@ public class ProteinDomainLoader {
         int lenToGo = (pd.aaStopPos-pd.aaStartPos+1)*3;
 
         // determine primary assembly
-        CdsUtils utils = new CdsUtils(tdao, primaryMapKey);
+        CdsUtils utils = new CdsUtils(tdao, assembly.getKey());
 
         // map protein domain to protein
         Protein p = dao.getProteinByUniProtId(uniProtAccId);
@@ -255,7 +261,7 @@ public class ProteinDomainLoader {
             List<Transcript> transcripts = tdao.getTranscriptsByProteinAccId(xid.getAccId());
             for (Transcript tr : transcripts) {
                 for (MapData md : tr.getGenomicPositions()) {
-                    if( md.getMapKey()!=primaryMapKey ) {
+                    if( md.getMapKey()!=assembly.getKey() ) {
                         continue;
                     }
                     List<CodingFeature> cfs = utils.buildCfList(md);
@@ -311,7 +317,7 @@ public class ProteinDomainLoader {
                 mdDomain.setStartPos(cf.getStartPos() + nucStartPos);
                 mdDomain.setChromosome(cf.getChromosome());
                 mdDomain.setMapKey(cf.getMapKey());
-                mdDomain.setSrcPipeline("UniProtKB");
+                mdDomain.setSrcPipeline(getSrcPipeline());
                 mdDomain.setStrand(cf.getStrand());
                 mdDomain.setRgdId(domainRgdId);
                 results.add(mdDomain);
@@ -359,7 +365,7 @@ public class ProteinDomainLoader {
             MapData mdDomain = new MapData();
             mdDomain.setChromosome(cf.getChromosome());
             mdDomain.setMapKey(cf.getMapKey());
-            mdDomain.setSrcPipeline("UniProtKB");
+            mdDomain.setSrcPipeline(getSrcPipeline());
             mdDomain.setStrand(cf.getStrand());
             mdDomain.setRgdId(domainRgdId);
             results.add(mdDomain);
@@ -390,8 +396,6 @@ public class ProteinDomainLoader {
     }
 
     void load(List<ProteinDomain> domains) throws Exception {
-        int insertedDomains = 0;
-        int upToDateDomains = 0;
 
         // merge protein domains
         for (ProteinDomain pd: domains) {
@@ -400,13 +404,13 @@ public class ProteinDomainLoader {
                 GenomicElement ge = dao.insertDomainName(pd.getDomainName());
                 // if ge has been inserted, its objectStatus property will be null
                 if (ge.getObjectStatus() == null) {
-                    insertedDomains++;
+                    counters.increment("DOMAINS INSERTED");
                 } else {
-                    upToDateDomains++;
+                    counters.increment("DOMAINS UP-TO-DATE");
                 }
                 pd.geInRgd = ge;
             } else {
-                upToDateDomains++;
+                counters.increment("DOMAINS UP-TO-DATE");
             }
 
             List<ProteinDomain> list = domainsMap.get(pd.geInRgd.getRgdId());
@@ -416,11 +420,6 @@ public class ProteinDomainLoader {
             }
             list.add(pd);
         }
-
-        if( insertedDomains!=0 ) {
-            log.info("DOMAINS INSERTED: " + insertedDomains);
-        }
-        log.info("DOMAINS UP-TO-DATE: "+upToDateDomains);
 
         handleProteinToDomainAssociations(domains);
         handleDomainLoci();
@@ -450,7 +449,7 @@ public class ProteinDomainLoader {
         log.debug("incoming assocs created");
 
         // get existing associations in RGD
-        List<Association> assocInRgd = dao.getAssociationsByType("protein_to_domain", speciesTypeKey);
+        List<Association> assocInRgd = dao.getAssociationsByType("protein_to_domain", assembly.getSpeciesTypeKey());
 
         log.debug("in-rgd assocs loaded");
 
@@ -463,29 +462,41 @@ public class ProteinDomainLoader {
         dao.insertAssociations(assocToBeInserted);
         dao.deleteAssociations(assocToBeDeleted);
 
-        log.info("protein-to-domain assoc matched  "+assocMatched.size());
-        log.info("protein-to-domain assoc inserted "+assocToBeInserted.size());
-        log.info("protein-to-domain assoc deleted  "+assocToBeDeleted.size());
+        if( !assocMatched.isEmpty() ) {
+            counters.add("ASSOC protein_to_domain MATCHED ", assocMatched.size());
+        }
+        if( !assocToBeInserted.isEmpty() ) {
+            counters.add("ASSOC protein_to_domain INSERTED", assocToBeInserted.size());
+        }
+        if( !assocToBeDeleted.isEmpty() ) {
+            counters.add("ASSOC protein_to_domain DELETED ", assocToBeDeleted.size());
+        }
     }
 
 
     void handleDomainLoci() throws Exception {
-        int primaryMapKey = MapManager.getInstance().getReferenceAssembly(speciesTypeKey).getKey();
 
         log.debug(" loading protein domains ...");
-        for (Map.Entry<Integer, List<ProteinDomain>> entry : domainsMap.entrySet()) {
-            log.debug("processing PD " + entry.getKey());
+
+        List<Integer> proteinDomainRgdIds = new ArrayList<>(domainsMap.keySet());
+        proteinDomainRgdIds.stream().forEach( proteinDomainRgdId -> {
+            log.debug("processing PD " + proteinDomainRgdId);
 
             List<MapData> domainLoci = new ArrayList<>();
-            for (ProteinDomain pd : entry.getValue()) {
+            for( ProteinDomain pd : domainsMap.get(proteinDomainRgdId) ) {
                 if (pd.loci != null) {
                     for (MapData md : pd.loci) {
                         addDomainLoci(domainLoci, md);
                     }
                 }
             }
-            updateDomainLociInDb(entry.getKey(), primaryMapKey, "UniProtKB", domainLoci);
-        }
+            try {
+                updateDomainLociInDb(proteinDomainRgdId, assembly.getKey(), getSrcPipeline(), domainLoci);
+            } catch(Exception e) {
+                Utils.printStackTrace(e, log);
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     void addDomainLoci(List<MapData> loci, MapData md) {
@@ -582,5 +593,21 @@ public class ProteinDomainLoader {
             int cnt = dao.insertMapData(loci);
             counters.add("LOCI_INSERTED", cnt);
         }
+    }
+
+    public void setProcessedMapKeys(List<Integer> processedMapKeys) {
+        this.processedMapKeys = processedMapKeys;
+    }
+
+    public List<Integer> getProcessedMapKeys() {
+        return processedMapKeys;
+    }
+
+    public void setSrcPipeline(String srcPipeline) {
+        this.srcPipeline = srcPipeline;
+    }
+
+    public String getSrcPipeline() {
+        return srcPipeline;
     }
 }

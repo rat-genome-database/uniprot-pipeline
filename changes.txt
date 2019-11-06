@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-11-06
+  protein domain loader: added support for more assemblies as specified in properties file
+
 2019-11-05
   protein domain loader: loci: implemented locus deletions and updates of locus notes
 
