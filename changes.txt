@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-11-14
+  deleted accessions: updated source url for uniprot file with deleted accessions
+
 2019-11-06
   protein domain loader: added support for more assemblies as specified in properties file
 
