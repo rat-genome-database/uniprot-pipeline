@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-12-02
+  deleted accessions: updated source url for uniprot files with deleted accessions (again)
+
 2019-11-14
   deleted accessions: updated source url for uniprot file with deleted accessions
 
