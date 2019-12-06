@@ -18,8 +18,6 @@ public class ProteinLoader {
     UniProtDataLoadManager manager;
     Logger logMain = Logger.getLogger("main");
 
-    private java.util.Map<Integer, List<XdbId>> secondaryIdMap;
-
     private UniProtDAO dao;
     private int speciesTypeKey;
     private String assocType;
@@ -32,9 +30,9 @@ public class ProteinLoader {
 
         manager = UniProtDataLoadManager.getInstance();
 
-        secondaryIdMap = getDao().getUniProtSecondaryIds(getSpeciesTypeKey(), RgdId.OBJECT_KEY_PROTEINS);
-
         getDao().loadMD5ForProteinSequences(getSpeciesTypeKey(), getSequenceType());
+
+        Set<XdbId> incomingSecondaryIds = new HashSet<>();
 
         for( UniProtRatRecord rec: records ) {
 
@@ -55,8 +53,10 @@ public class ProteinLoader {
             handleProteinToGeneAssociations(rec, protein);
 
             // handle uniprot secondary accession ids
-            handleXdbIds(rec, protein);
+            handleXdbIds(rec, protein, incomingSecondaryIds);
         }
+
+        handleSecondaryUniProtIds(incomingSecondaryIds);
 
         logMain.info("PROTEIN LOADER OK,   elapsed "+Utils.formatElapsedTime(time0, System.currentTimeMillis()));
     }
@@ -173,10 +173,9 @@ public class ProteinLoader {
         manager.incrementCounter("  protein-to-gene assoc deleted ", assocToBeDeleted.size());
     }
 
-    void handleXdbIds(UniProtRatRecord rec, Protein protein) throws Exception {
+    void handleXdbIds(UniProtRatRecord rec, Protein protein, Set<XdbId> incomingSecondaryIds) throws Exception {
 
         // create incoming xdb ids
-        List<XdbId> xdbIdsIncoming = new ArrayList<>();
         List<String> secondaries = rec.getXdbInfo("UniProtSecondary");
         for( int i=0; i<secondaries.size(); i+=2 ) {
             String uniProtSecondaryId = secondaries.get(i);
@@ -185,20 +184,17 @@ public class ProteinLoader {
             xdbId.setSrcPipeline(rec.getSrcPipeline());
             xdbId.setRgdId(protein.getRgdId());
             xdbId.setXdbKey(XdbId.XDB_KEY_UNIPROT_SECONDARY);
-            if( !xdbIdsIncoming.contains(xdbId) ) {
-                xdbIdsIncoming.add(xdbId);
-            }
+            incomingSecondaryIds.add(xdbId);
         }
+    }
 
-        // get existing secondary uniprot ids in RGD
-        List<XdbId> xdbIdsInRgd = secondaryIdMap.get(protein.getRgdId());
-        if( xdbIdsInRgd==null ) {
-            xdbIdsInRgd = Collections.emptyList();
-        }
+    void handleSecondaryUniProtIds(Collection<XdbId> incomingSecondaryIds) throws Exception {
 
-        Collection<XdbId> xdbIdsMatched = CollectionUtils.intersection(xdbIdsIncoming, xdbIdsInRgd);
-        Collection<XdbId> xdbIdsToBeInserted = CollectionUtils.subtract(xdbIdsIncoming, xdbIdsInRgd);
-        Collection<XdbId> xdbIdsToBeDeleted = CollectionUtils.subtract(xdbIdsInRgd, xdbIdsIncoming);
+        List<XdbId> secondaryIdsInRgd = getDao().getUniProtSecondaryIds(getSpeciesTypeKey(), RgdId.OBJECT_KEY_PROTEINS);
+
+        Collection<XdbId> xdbIdsMatched = CollectionUtils.intersection(incomingSecondaryIds, secondaryIdsInRgd);
+        Collection<XdbId> xdbIdsToBeInserted = CollectionUtils.subtract(incomingSecondaryIds, secondaryIdsInRgd);
+        Collection<XdbId> xdbIdsToBeDeleted = CollectionUtils.subtract(secondaryIdsInRgd, incomingSecondaryIds);
 
         if( !xdbIdsToBeInserted.isEmpty() ) {
             getDao().insertXdbIds(new ArrayList<>(xdbIdsToBeInserted), RgdId.OBJECT_KEY_PROTEINS);

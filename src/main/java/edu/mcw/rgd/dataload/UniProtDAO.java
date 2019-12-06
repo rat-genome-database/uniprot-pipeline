@@ -128,20 +128,11 @@ public class UniProtDAO extends AbstractDAO {
         }
     }
 
-    public Map<Integer, List<XdbId>> getUniProtSecondaryIds(int speciesType, int objectKey) throws Exception {
+    public List<XdbId> getUniProtSecondaryIds(int speciesType, int objectKey) throws Exception {
         XdbId filter = new XdbId();
         filter.setXdbKey(XdbId.XDB_KEY_UNIPROT_SECONDARY);
 
-        Map<Integer, List<XdbId>> secondaryIdMap = new HashMap<>();
-        for( XdbId id: xdbidDAO.getXdbIds(filter, speciesType, objectKey) ){
-            List<XdbId> list = secondaryIdMap.get(id.getRgdId());
-            if( list==null ) {
-                list = new ArrayList<>();
-                secondaryIdMap.put(id.getRgdId(), list);
-            }
-            list.add(id);
-        }
-        return secondaryIdMap;
+        return xdbidDAO.getXdbIds(filter, speciesType, objectKey);
     }
 
     public List<XdbId> getRefSeqIdsForProteins(String srcPipeline) throws Exception {

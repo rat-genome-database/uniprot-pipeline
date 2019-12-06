@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+2019-12-06
+  secondary protein acc ids: simplified code and fixed summary reporting
+
 2019-12-02
   deleted accessions: updated source url for uniprot files with deleted accessions (again)
 
