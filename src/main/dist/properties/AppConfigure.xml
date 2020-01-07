@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build 2019-12-06" />
+        <property name="version" value="UniProtKB pipeline -- build 2020-01-07" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	

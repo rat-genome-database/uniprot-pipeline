@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -54,9 +55,12 @@ public class ProteinDomainLoader {
         String speciesName = SpeciesType.getCommonName(assembly.getSpeciesTypeKey());
         log.info("START for "+speciesName +" "+assembly.getName());
 
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
+        String datePrefix = sdt.format(new Date());
+
         // parse sprot and trembl files and extract lines with primary accession ids and protein domain info
         // store this as a lean info file
-        String outFileName = "data/"+speciesName.toLowerCase()+"_domains.txt";
+        String outFileName = "data/"+datePrefix+"_"+speciesName.toLowerCase()+"_domains.txt";
         BufferedWriter out = new BufferedWriter(new FileWriter(outFileName));
         processFile(fileName1, out);
         processFile(fileName2, out);
@@ -190,8 +194,9 @@ public class ProteinDomainLoader {
             // new protein domain record
             domain = new ProteinDomain();
             domain.uniprotAcc = acc;
-            domain.aaStartPos = parseFeaturePos(line.substring(14, 20));
-            domain.aaStopPos = parseFeaturePos(line.substring(20, 27));
+
+            parseDomainPos(line, domain);
+
             String text = line.substring(34);
             int dotPos = text.indexOf('.');
             if( dotPos>0 ) {
@@ -205,6 +210,23 @@ public class ProteinDomainLoader {
             domain.qcDomainName();
         }
         return domain;
+    }
+
+    // the position is given like that:
+    // FT   DOMAIN          231..303/note="RRM 3"
+    boolean parseDomainPos(String line, ProteinDomain pd) {
+        int startPos = 21;
+        int doubleDotPos = line.indexOf("..", startPos);
+        int slashPos = line.indexOf("/", doubleDotPos);
+        if( doubleDotPos<0 || slashPos<0 ) {
+            return false;
+        }
+        String pos1 = line.substring(startPos, doubleDotPos);
+        pd.aaStartPos = parseFeaturePos(pos1);
+
+        String pos2 = line.substring(doubleDotPos+2, slashPos);
+        pd.aaStopPos = parseFeaturePos(pos2);
+        return true;
     }
 
     int parseFeaturePos(String str) {

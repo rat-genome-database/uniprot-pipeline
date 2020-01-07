@@ -79,7 +79,7 @@ public class UniProtFileParser {
         FileDownloader downloader = new FileDownloader();
         downloader.setExternalFile("ftp://"+ftpServer+ftpDirectory+"/"+fname);
         downloader.setLocalFile("data/"+fname);
-        downloader.setAppendDateStamp(true);
+        downloader.setPrependDateStamp(true);
         return downloader.downloadNew();
     }
 
