@@ -22,14 +22,15 @@ public class UniProtDAO extends AbstractDAO {
     public final static String SWISSPROT = "/Swiss-Prot";
     public final static int OBJECT_KEY_PROTEIN_DOMAINS = 23;
 
-    static Logger logInsertedIds = Logger.getLogger("ids_inserted");
-    static Logger logDeletedIds = Logger.getLogger("ids_deleted");
-    static Logger logInsertedProteins = Logger.getLogger("proteins_inserted");
-    static Logger logUpdatedProteins = Logger.getLogger("proteins_updated");
-    static Logger logProteinsXdbIds = Logger.getLogger("proteins_xdb_ids");
-    static Logger logAssociations = Logger.getLogger("associations");
-    static Logger logAliases = Logger.getLogger("aliases");
-    static Logger logSequences = Logger.getLogger("sequences");
+    Logger logInsertedIds = Logger.getLogger("ids_inserted");
+    Logger logDeletedIds = Logger.getLogger("ids_deleted");
+    Logger logInsertedProteins = Logger.getLogger("proteins_inserted");
+    Logger logUpdatedProteins = Logger.getLogger("proteins_updated");
+    Logger logProteinsXdbIds = Logger.getLogger("proteins_xdb_ids");
+    Logger logDomainPos = Logger.getLogger("domain_pos");
+    Logger logAssociations = Logger.getLogger("associations");
+    Logger logAliases = Logger.getLogger("aliases");
+    Logger logSequences = Logger.getLogger("sequences");
 
     private AliasDAO aliasDAO = new AliasDAO();
     private AssociationDAO associationDAO = new AssociationDAO();
@@ -532,18 +533,22 @@ public class UniProtDAO extends AbstractDAO {
     static Map<Integer, String> _rgdId2md5 = new HashMap<>();
 
     public int insertMapData(List<MapData> mds) throws Exception {
-        return mapDAO.insertMapData(mds);
-    }
-
-    public int updateMapData(MapData md) throws Exception {
-        return mapDAO.updateMapData(md);
+        mapDAO.insertMapData(mds);
+        for( MapData md: mds ) {
+            logDomainPos.debug("INSERT "+md.dump("|"));
+        }
+        return mds.size();
     }
 
     public int deleteMapData(List<MapData> mds) throws Exception {
-        return mapDAO.deleteMapData(mds);
+        for( MapData md: mds ) {
+            logDomainPos.debug("DELETE "+md.dump("|"));
+        }
+        mapDAO.deleteMapData(mds);
+        return mds.size();
     }
 
-    public List<MapData> getMapData(int rgdId, int mapKey, String srcPipeline) throws Exception {
-        return mapDAO.getMapData(rgdId, mapKey, srcPipeline);
+    public List<MapData> getProteinDomainLociForMapAndSource(int mapKey, String srcPipeline) throws Exception {
+        return mapDAO.getMapDataByMapKeyObject(mapKey, RgdId.OBJECT_KEY_PROTEIN_DOMAINS, srcPipeline);
     }
 }

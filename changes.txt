@@ -1,6 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 2020-01-07
   fixed protein domain loader: UniProtKB changed the format of 'FT DOMAIN' lines
+  protein domain loader: fixed loading of duplicate data
 
 2019-12-06
   secondary protein acc ids: simplified code and fixed summary reporting

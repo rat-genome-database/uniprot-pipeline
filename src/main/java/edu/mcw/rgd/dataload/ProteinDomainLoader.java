@@ -32,11 +32,9 @@ public class ProteinDomainLoader {
 
     private Logger log = Logger.getLogger("domains");
     private Logger logStrandProblem = Logger.getLogger("strand_problem");
-    private int strandProblems; // count of lines with strand problems
 
-    Logger logDomainPos = Logger.getLogger("domain_pos");
     private java.util.Map<Integer, List<ProteinDomain>> domainsMap = new HashMap<>();
-    CounterPool counters = new CounterPool();
+    CounterPool counters;
 
     public void run(UniProtFileParser fileParser) throws Exception {
         List<Integer> mapKeys = new ArrayList<>(getProcessedMapKeys());
@@ -45,7 +43,10 @@ public class ProteinDomainLoader {
         for( int mapKey: mapKeys ) {
             this.assembly = MapManager.getInstance().getMap(mapKey);
             this.taxonid = SpeciesType.getTaxonomicId(assembly.getSpeciesTypeKey());
+            this.domainsMap.clear();
+            this.counters = new CounterPool();
             fileParser.setSpecies(assembly.getSpeciesTypeKey());
+
             run(fileParser.download(fileParser.getFileName()), fileParser.download(fileParser.getFileName2()));
         }
     }
@@ -57,6 +58,7 @@ public class ProteinDomainLoader {
 
         SimpleDateFormat sdt = new SimpleDateFormat("yyyyMMdd");
         String datePrefix = sdt.format(new Date());
+
 
         // parse sprot and trembl files and extract lines with primary accession ids and protein domain info
         // store this as a lean info file
@@ -252,10 +254,6 @@ public class ProteinDomainLoader {
         }
 
         log.info("PROTEIN DOMAIN COUNT: "+domainNames.size());
-
-        if( strandProblems!=0 ) {
-            log.info("STRAND PROBLEMS : " + strandProblems+"   ; details in strand_problem.log");
-        }
     }
 
     List<MapData> positionProteinDomain(ProteinDomain pd, String uniProtAccId) throws Exception {
@@ -361,7 +359,7 @@ public class ProteinDomainLoader {
             }
         }
         logStrandProblem.info("plus strand problem "+uniProtAccId+" "+lenToGo);
-        strandProblems++;
+        counters.increment("STRAND_PROBLEMS (details in strand_problem.log)");
         return results;
     }
 
@@ -413,7 +411,7 @@ public class ProteinDomainLoader {
             }
         }
         logStrandProblem.info("minus strand problem "+uniProtAccId+" "+lenToGo);
-        strandProblems++;
+        counters.increment("STRAND_PROBLEMS (details in strand_problem.log)");
         return results;
     }
 
@@ -500,8 +498,10 @@ public class ProteinDomainLoader {
 
         log.debug(" loading protein domains ...");
 
+        Set<MapDataEx> proteinDomainLociIncoming = new HashSet<>();
+
         List<Integer> proteinDomainRgdIds = new ArrayList<>(domainsMap.keySet());
-        proteinDomainRgdIds.stream().forEach( proteinDomainRgdId -> {
+        for( int proteinDomainRgdId: proteinDomainRgdIds ) {
             log.debug("processing PD " + proteinDomainRgdId);
 
             List<MapData> domainLoci = new ArrayList<>();
@@ -512,13 +512,49 @@ public class ProteinDomainLoader {
                     }
                 }
             }
-            try {
-                updateDomainLociInDb(proteinDomainRgdId, assembly.getKey(), getSrcPipeline(), domainLoci);
-            } catch(Exception e) {
-                Utils.printStackTrace(e, log);
-                throw new RuntimeException(e);
+
+            for( MapData md: domainLoci ) {
+                proteinDomainLociIncoming.add(new MapDataEx(md));
             }
-        });
+        }
+
+        List<MapData> inRgd = dao.getProteinDomainLociForMapAndSource(assembly.getKey(), getSrcPipeline());
+        List<MapData> duplicateLoci = new ArrayList<>();
+        Set<MapDataEx> proteinDomainLociInRgd = new HashSet<>();
+        for( MapData md: inRgd ) {
+            if( !proteinDomainLociInRgd.add(new MapDataEx(md)) ) {
+                duplicateLoci.add(md);
+            }
+        }
+        log.debug("in-rgd loci loaded");
+        counters.add("PROTEIN DOMAIN LOCI INCOMING ", proteinDomainLociIncoming.size());
+        counters.add("PROTEIN DOMAIN LOCI IN RGD ", proteinDomainLociInRgd.size());
+
+        if( !duplicateLoci.isEmpty() ) {
+            dao.deleteMapData(duplicateLoci);
+
+            counters.add("PROTEIN DOMAIN LOCI DELETED DUPLICATE", duplicateLoci.size());
+        }
+
+
+        Collection<MapDataEx> lociMatched = CollectionUtils.intersection(proteinDomainLociIncoming, proteinDomainLociInRgd);
+        Collection<MapDataEx> lociToBeInserted = CollectionUtils.subtract(proteinDomainLociIncoming, proteinDomainLociInRgd);
+        Collection<MapDataEx> lociToBeDeleted = CollectionUtils.subtract(proteinDomainLociInRgd, proteinDomainLociIncoming);
+
+        log.debug("loci qc-ed");
+
+        dao.insertMapData(new ArrayList<MapData>(lociToBeInserted));
+        dao.deleteMapData(new ArrayList<MapData>(lociToBeDeleted));
+
+        if( !lociMatched.isEmpty() ) {
+            counters.add("PROTEIN DOMAIN LOCI MATCHED ", lociMatched.size());
+        }
+        if( !lociToBeInserted.isEmpty() ) {
+            counters.add("PROTEIN DOMAIN LOCI INSERTED", lociToBeInserted.size());
+        }
+        if( !lociToBeDeleted.isEmpty() ) {
+            counters.add("PROTEIN DOMAIN LOCI DELETED ", lociToBeDeleted.size());
+        }
     }
 
     void addDomainLoci(List<MapData> loci, MapData md) {
@@ -550,73 +586,6 @@ public class ProteinDomainLoader {
         loci.add(md);
     }
 
-    void updateDomainLociInDb( int domainRgdId, int mapKey, String srcPipeline, List<MapData> loci ) throws Exception {
-
-        /*
-        // sort maps-data by chromosome and pos
-        Collections.sort(loci, new Comparator<MapData>() {
-            @Override
-            public int compare(MapData o1, MapData o2) {
-                int r = o1.getChromosome().compareTo(o2.getChromosome());
-                if( r!=0 ) {
-                    return r;
-                }
-                return o1.getStartPos() - o2.getStartPos();
-            }
-        });
-
-        for( MapData md: loci ) {
-            logDomainPos.debug("DOMAIN_RGD:" + domainRgdId + " MAP_KEY:" + mapKey+"  c"+md.getChromosome()+":"+md.getStartPos()+".."+md.getStopPos()+" ("+md.getStrand()+")");
-        }
-        */
-
-        List<MapData> mdsInRgd = dao.getMapData(domainRgdId, mapKey, srcPipeline);
-
-        // if incoming locus has a match in RGD, remove them from the lists
-        Iterator<MapData> it = loci.iterator();
-        while( it.hasNext() ) {
-            MapData mdIncoming = it.next();
-
-            // find a match in RGD
-            Iterator<MapData> itInRgd = mdsInRgd.iterator();
-            while( itInRgd.hasNext() ) {
-                MapData mdInRgd = itInRgd.next();
-                if( mdInRgd.equalsByGenomicCoords(mdIncoming) ) {
-                    // check if notes are different
-                    if( !Utils.stringsAreEqualIgnoreCase(mdInRgd.getNotes(), mdIncoming.getNotes()) ) {
-                        // update notes
-                        logDomainPos.info("updating notes for "+mdInRgd.toString());
-                        logDomainPos.info("  old notes: "+mdInRgd.getNotes());
-                        logDomainPos.info("  new notes: "+mdIncoming.getNotes());
-                        mdInRgd.setNotes(mdIncoming.getNotes());
-                        dao.updateMapData(mdInRgd);
-                        counters.increment("LOCI_UPDATED_NOTES");
-                    }
-                    itInRgd.remove();
-                    it.remove();
-                    counters.increment("LOCI_UP_TO_DATE");
-                    break;
-                }
-            }
-        }
-
-        if( !mdsInRgd.isEmpty() ) {
-            for( MapData md: mdsInRgd ) {
-                logDomainPos.info("LOCUS deleted: "+md.dump("|"));
-            }
-            int cnt = dao.deleteMapData(mdsInRgd);
-            counters.add("LOCI_DELETED", cnt);
-        }
-
-        if( !loci.isEmpty() ) {
-            for( MapData md: mdsInRgd ) {
-                logDomainPos.info("LOCUS inserted: "+md.dump("|"));
-            }
-            int cnt = dao.insertMapData(loci);
-            counters.add("LOCI_INSERTED", cnt);
-        }
-    }
-
     public void setProcessedMapKeys(List<Integer> processedMapKeys) {
         this.processedMapKeys = processedMapKeys;
     }
@@ -631,5 +600,40 @@ public class ProteinDomainLoader {
 
     public String getSrcPipeline() {
         return srcPipeline;
+    }
+
+    /// this class is same as MapData, but it has refined equals() and hashCode() methods suitable for sorting of genomic positions on multiple assemblies
+    class MapDataEx extends MapData {
+
+        public MapDataEx(MapData md) {
+            setKey(md.getKey());
+            setMapKey(md.getMapKey());
+            setRgdId(md.getRgdId());
+            setChromosome(md.getChromosome());
+            setStartPos(md.getStartPos());
+            setStopPos(md.getStopPos());
+            setStrand(md.getStrand());
+            setSrcPipeline(md.getSrcPipeline());
+            setNotes(md.getNotes());
+        }
+
+        public boolean equals(Object o) {
+            MapData md = (MapData) o;
+            return super.equals(o)
+                && Utils.stringsAreEqual(getChromosome(), md.getChromosome())
+                && Utils.intsAreEqual(getStartPos(), md.getStartPos())
+                && Utils.intsAreEqual(getStopPos(), md.getStopPos())
+                && Utils.stringsAreEqual(getNotes(), md.getNotes())
+                && Utils.stringsAreEqual(getSrcPipeline(), md.getSrcPipeline());
+        }
+
+        public int hashCode() {
+            return super.hashCode()
+                ^ Utils.defaultString(getChromosome()).hashCode()
+                ^ (getStartPos()==null ? 0 : getStartPos())
+                ^ (getStopPos()==null ? 0 : getStopPos())
+                ^ Utils.defaultString(getNotes()).hashCode()
+                ^ Utils.defaultString(getSrcPipeline()).hashCode();
+        }
     }
 }

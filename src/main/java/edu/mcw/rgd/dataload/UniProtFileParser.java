@@ -48,6 +48,10 @@ public class UniProtFileParser {
 
         this.speciesTypeKey = speciesTypeKey;
         this.taxonid = SpeciesType.getTaxonomicId(speciesTypeKey);
+        this.totRecord = 0;
+        this.skipRecord = 0;
+        this.mapXdbCount.clear();
+        this.incomingRecords.clear();
     }
 
     public void processFile1(String fileName1, String srcPipeline) throws Exception {
