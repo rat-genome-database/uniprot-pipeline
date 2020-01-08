@@ -16,35 +16,29 @@ public class ProteinDomain {
     public int aaStartPos;
     public int aaStopPos;
     private String domainName;
-    public String notes;
-    public String domainSeq;
 
     public GenomicElement geInRgd;
     public List<MapData> loci;
 
-    public void cleanupDomainName() {
 
-        int pos;
-        if( domainName.lastIndexOf('}')>0 ) {
-            // is there a matching '{'
-            pos = domainName.lastIndexOf('{');
-            if( pos > 0 ) {
-                domainName = domainName.substring(0, pos).trim();
-            } else {
-                pos = domainName.lastIndexOf(' ');
-                domainName = domainName.substring(0, pos).trim();
-            }
-        }
+    void cleanupDomainName() {
 
-        pos = domainName.lastIndexOf("ProRule:");
-        if( pos>0 ) {
-            domainName = domainName.substring(0, pos).trim();
+        // remove comments from the domain name
+        //  EGF-like; calcium-binding       --> EGF-like
+        //  Sushi 1; atypical; lacks a Cys  --> Sushi 1
+        // TODO: consider incorpating comments into notes of the locus in MAPS_DATA table
+        int commentPos = domainName.indexOf("; ");
+        if( commentPos>0 ) {
+            domainName = domainName.substring(0, commentPos);
         }
     }
 
     static Pattern domainNameCounterPattern = Pattern.compile(" \\d+$");
 
     public void qcDomainName() {
+
+        cleanupDomainName();
+
         // many proteins have the same domain appearing multiple times
         // f.e. P58365 protein has Cadherin domain appearing 27 times!
         //   so the domain names are like this: 'Cadherin 1', 'Cadherin 2', ... 'Cadherin 27'

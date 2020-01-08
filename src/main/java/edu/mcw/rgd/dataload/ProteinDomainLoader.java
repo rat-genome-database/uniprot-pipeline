@@ -157,7 +157,7 @@ public class ProteinDomainLoader {
         reader.close();
     }
 
-    List<ProteinDomain> parse(String ftFileName) throws IOException {
+    List<ProteinDomain> parse(String ftFileName) throws Exception {
         List<ProteinDomain> domains = new ArrayList<>();
 
         BufferedReader in = Utils.openReader(ftFileName);
@@ -189,7 +189,7 @@ public class ProteinDomainLoader {
         return domains;
     }
 
-    ProteinDomain parseProteinFeature(String line, String acc) {
+    ProteinDomain parseProteinFeature(String line, String acc) throws Exception {
         ProteinDomain domain = null;
 
         if( line.startsWith("FT   DOMAIN") ) {
@@ -199,16 +199,19 @@ public class ProteinDomainLoader {
 
             parseDomainPos(line, domain);
 
-            String text = line.substring(34);
-            int dotPos = text.indexOf('.');
-            if( dotPos>0 ) {
-                domain.setDomainName(text.substring(0, dotPos));
-                domain.notes = text.substring(dotPos+1);
+            // Example line:
+            // FT   DOMAIN          525..758/note="ABC transporter 1"
+            int startPos = line.indexOf("/note=\"") + 7;
+            int endPos = line.indexOf("\"", startPos);
+            if( endPos < 0 ) { // note: there are some lines without terminating double quotes!!! we must handle them
+                endPos = line.length();
+            }
+            if( endPos > startPos ) {
+                domain.setDomainName(line.substring(startPos, endPos));
             } else {
-                domain.setDomainName(text);
+                throw new Exception("domain parsing problem: "+line);
             }
 
-            domain.cleanupDomainName();
             domain.qcDomainName();
         }
         return domain;
