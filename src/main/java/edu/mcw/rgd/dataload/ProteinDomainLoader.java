@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * load protein domain objects
@@ -242,19 +243,24 @@ public class ProteinDomainLoader {
         return Integer.parseInt(pos);
     }
 
-    void qc(List<ProteinDomain> domains) throws Exception {
+    void qc(List<ProteinDomain> domains) {
 
-        Set<String> domainNames = new HashSet<>();
+        ConcurrentHashMap<String, String> domainNames = new ConcurrentHashMap<>();
 
-        for( ProteinDomain pd: domains ) {
-            pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
+        domains.parallelStream().forEach( pd -> {
 
-            if( pd.geInRgd!=null ) {
-                pd.loci = positionProteinDomain(pd, pd.uniprotAcc);
+            try {
+                pd.geInRgd = dao.getProteinDomainObject(pd.getDomainName());
+
+                if (pd.geInRgd != null) {
+                    pd.loci = positionProteinDomain(pd, pd.uniprotAcc);
+                }
+
+                domainNames.put(pd.getDomainName(), pd.getDomainName());
+            } catch( Exception e) {
+                throw new RuntimeException(e);
             }
-
-            domainNames.add(pd.getDomainName());
-        }
+        });
 
         log.info("PROTEIN DOMAIN COUNT: "+domainNames.size());
     }

@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+May 10, 2020
+  updated jar dependencies
+
 2020-01-07
   fixed protein domain loader: UniProtKB changed the format of 'FT DOMAIN' lines
   protein domain loader: fixed loading of duplicate data
