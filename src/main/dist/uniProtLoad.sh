@@ -12,7 +12,7 @@ cd $APP_HOME
 #initialize summary.log
 echo "===" > $APP_HOME/logs/summary.log
 
-speciesList=( "rat" "mouse" "human" "dog" "bonobo" "squirrel" "chinchilla" "pig" )
+speciesList=( "rat" "mouse" "human" "dog" "bonobo" "squirrel" "chinchilla" "pig" "vervet" "molerat")
 
 for species in "${speciesList[@]}"; do
     $APP_HOME/_run.sh -species "$species" $@  2>&1

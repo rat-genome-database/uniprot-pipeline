@@ -72,45 +72,6 @@ public class UniProtRecord {
         return xdbId;
     }
 
-    // remove from incoming uniprot id those trembl ids that have the corresponding sprot ids
-    // return count of removed trembl entries that were identical as sprot entries
-    public int removeSprotTremblDuplicates() {
-
-        int tremblSprotDuplicates = 0;
-
-        // sort entries by xdb_key, acc_id and src_pipeline for easy detection of duplicates
-        // note: TrEMBL entries will be always *after* Swiss-Prot entries
-        Collections.sort(xdbIds, new Comparator<XdbId>() {
-            @Override
-            public int compare(XdbId o1, XdbId o2) {
-                int r = o1.getXdbKey() - o2.getXdbKey();
-                if( r!=0 )
-                    return r;
-                r = o1.getAccId().compareTo(o2.getAccId());
-                if( r!=0 )
-                    return r;
-                return o1.getSrcPipeline().compareTo(o2.getSrcPipeline());
-            }
-        });
-
-        // remove duplicates, starting from last but one entry
-        for( int i=xdbIds.size()-2; i>=0; i-- ) {
-            XdbId x1 = xdbIds.get(i);
-            XdbId x2 = xdbIds.get(i+1);
-
-            if( x1.getXdbKey()==x2.getXdbKey()
-               && x1.getAccId().equals(x2.getAccId())
-               && x1.getSrcPipeline().endsWith(UniProtDAO.SWISSPROT)
-               && x2.getSrcPipeline().endsWith(UniProtDAO.TREMBL) ) {
-
-                // duplicate trembl entry detetected
-                xdbIds.remove(i+1);
-                tremblSprotDuplicates++;
-            }
-        }
-        return tremblSprotDuplicates;
-    }
-
     public int getRgdId() {
         return rgdId;
     }

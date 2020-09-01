@@ -1,4 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Sep 01, 2020
+  removed requirement to drop Trembl ids for genes having SwissProt ids are present -- code was broken anyway
+  added molerat and vervet to the list of processed species
+  
 May 10, 2020
   updated jar dependencies
 

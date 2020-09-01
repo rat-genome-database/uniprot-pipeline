@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- buildMay 10, 2020" />
+        <property name="version" value="UniProtKB pipeline -- build Sep 01, 2020" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -21,9 +21,11 @@
                 <entry key="Rat" value="uniprot_sprot_rodents.dat.gz"/>
                 <entry key="Chinchilla" value="uniprot_sprot_rodents.dat.gz"/>
                 <entry key="Squirrel" value="uniprot_sprot_rodents.dat.gz"/>
+                <entry key="Molerat" value="uniprot_sprot_rodents.dat.gz"/>
                 <entry key="Dog" value="uniprot_sprot_mammals.dat.gz"/>
                 <entry key="Bonobo" value="uniprot_sprot_mammals.dat.gz"/>
                 <entry key="Pig" value="uniprot_sprot_mammals.dat.gz"/>
+                <entry key="Vervet" value="uniprot_sprot_mammals.dat.gz"/>
             </map>
         </property>
         <property name="tremblFileNames">
@@ -33,9 +35,11 @@
                 <entry key="Rat" value="uniprot_trembl_rodents.dat.gz"/>
                 <entry key="Chinchilla" value="uniprot_trembl_rodents.dat.gz"/>
                 <entry key="Squirrel" value="uniprot_trembl_rodents.dat.gz"/>
+                <entry key="Molerat" value="uniprot_trembl_rodents.dat.gz"/>
                 <entry key="Dog" value="uniprot_trembl_mammals.dat.gz"/>
                 <entry key="Bonobo" value="uniprot_trembl_mammals.dat.gz"/>
                 <entry key="Pig" value="uniprot_trembl_mammals.dat.gz"/>
+                <entry key="Vervet" value="uniprot_trembl_mammals.dat.gz"/>
             </map>
         </property>
 

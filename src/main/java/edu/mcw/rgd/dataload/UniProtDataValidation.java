@@ -55,11 +55,6 @@ public class UniProtDataValidation {
     }
 
     void handleXdbIds(UniProtRecord rec) throws Exception {
-        // from incoming data remove those xdb acc ids from trembl that are the same as xdb acc ids from sprot
-        int removedTremblDuplicates = rec.removeSprotTremblDuplicates();
-        if( removedTremblDuplicates>0 ) {
-            UniProtDataLoadManager.getInstance().incrementCounter("skipped TREMBL duplicates", removedTremblDuplicates);
-        }
         List<XdbId> xdbIdsIncoming = new ArrayList<>(rec.getXdbIds());
 
         // get uniprot xdb ids from RGD
