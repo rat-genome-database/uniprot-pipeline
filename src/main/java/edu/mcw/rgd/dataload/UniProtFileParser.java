@@ -1,6 +1,5 @@
 package edu.mcw.rgd.dataload;
 
-import edu.mcw.rgd.datamodel.PipelineLog;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.process.*;
 import org.apache.log4j.Logger;
@@ -31,7 +30,6 @@ public class UniProtFileParser {
     List<UniProtRatRecord> incomingRecords = new ArrayList<>(1000);
 
     UniProtDataValidation dataValidation;
-    PipelineLogger dblog = PipelineLogger.getInstance();
     private Map<String,String> swissProtFileNames;
     private Map<String,String> tremblFileNames;
 
@@ -88,7 +86,6 @@ public class UniProtFileParser {
     }
 
     public void processFile(String fileName, String srcPipeline) throws Exception {
-        dblog.log("starting processing of ", fileName, PipelineLogger.INFO);
 
         // open input stream
         BufferedReader reader = Utils.openReader(fileName);
@@ -123,9 +120,6 @@ public class UniProtFileParser {
                     incomingRecords.add(rec);
                 } else
                     skipRecord++; // count records of species different from rat
-
-                dblog.writeLogProps();
-                dblog.removeAllLogProps();
 
                 // prepare for next record
                 rec = new UniProtRatRecord(srcPipeline);
@@ -237,7 +231,6 @@ public class UniProtFileParser {
         }
         reader.close();
 
-        dblog.log("finished processing of ", fileName, PipelineLogger.INFO);
         logMain.info("finished processing of "+ fileName);
     }
 
@@ -395,7 +388,7 @@ public class UniProtFileParser {
         }
     }
 
-    public void dumpXdbCounts(Map<String, Integer> activeXdbIdMap) throws Exception {
+    public void dumpXdbCounts(Map<String, Integer> activeXdbIdMap, Logger log) {
         // create a sorted list of XdbIdCount objects
         List<XdbIdCount> slist = new ArrayList<>(this.mapXdbCount.size());
         for( Map.Entry<String, Integer> entry: mapXdbCount.entrySet() ) {
@@ -408,13 +401,13 @@ public class UniProtFileParser {
         int itemCountForInactiveDatabases = 0;
         for( XdbIdCount item: slist ) {
             if( activeXdbIdMap.containsKey(item.xdbName))
-                dblog.log("# lines for [ACTIVE] database "+item.xdbName, Integer.toString(item.count), PipelineLog.LOGPROP_TOTAL);
+                log.info("# lines for [ACTIVE] database "+item.xdbName+": "+ item.count);
             else {
                 inactiveDbCount++;
                 itemCountForInactiveDatabases += item.count;
             }
         }
-        dblog.log("# lines for [IGNORED] "+inactiveDbCount+" databases", Integer.toString(itemCountForInactiveDatabases), PipelineLog.LOGPROP_TOTAL);
+        log.info("# lines for [IGNORED] "+inactiveDbCount+" databases:  "+ itemCountForInactiveDatabases);
     }
 
 

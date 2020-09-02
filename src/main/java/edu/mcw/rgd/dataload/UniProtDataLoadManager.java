@@ -1,9 +1,7 @@
 package edu.mcw.rgd.dataload;
 
-import edu.mcw.rgd.datamodel.PipelineLog;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.log.RGDSpringLogger;
-import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -20,7 +18,6 @@ import java.util.Map;
  * @since Apr 6, 2010
  */
 public class UniProtDataLoadManager {
-    PipelineLogger dbLogger = PipelineLogger.getInstance();
     UniProtDAO dao;
     UniProtFileParser fileParser;
     UniProtQC qc = new UniProtQC();
@@ -180,11 +177,8 @@ public class UniProtDataLoadManager {
         dao.setProcessingStartTime(new Date());
         Thread.sleep(555);
 
-        // initialize pipeline logging to database for first file
-        dbLogger.init(speciesTypeKey, "uniprot_sprot", PipelineLogger.PIPELINE_UNIPROT);
-
         dataValidation.setSpeciesTypeKey(speciesTypeKey);
-        fileParser.processFile1(fileName, PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.SWISSPROT);
+        fileParser.processFile1(fileName, UniProtDAO.SWISSPROT);
 
         // take snapshot of the statistics after analyzing the first file
         int relationshipsIncoming = fileParser.getTotRecord();
@@ -198,15 +192,10 @@ public class UniProtDataLoadManager {
         // print statistics to database
         writeDbSummary();
 
-        dbLogger.close(true);
-
-        // initialize pipeline logging to database for second file
-        dbLogger.restart("uniprot_trembl");
-
         // reset database counter
         fileParser.getMapXdbCount().clear();
 
-        fileParser.processFile2(fileName2, PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.TREMBL);
+        fileParser.processFile2(fileName2, UniProtDAO.TREMBL);
 
         // QC
         List<UniProtRatRecord> incomingRecords = fileParser.getIncomingRecords();
@@ -241,31 +230,16 @@ public class UniProtDataLoadManager {
         qc.setUnMatched(-externalRefUnmatched + qc.getUnMatched());
         writeDbSummary();
 
-        dbLogger.close(true);
-
         logMain.info("===== done "+SpeciesType.getCommonName(speciesTypeKey)+" UniProtKB pipeline =====");
         logMain.info("");
     }
 
     // write summary to db pipeline logs
     public void writeDbSummary() throws Exception {
-        dbLogger.log("Number of protein records in the source file", Integer.toString(fileParser.getTotRecord()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of protein records skipped (different species)", Integer.toString(fileParser.getSkipRecord()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of new xdb ids loaded into RGD", Integer.toString(dao.getRowsInserted()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of xdb ids deleted from RGD", Integer.toString(dao.getRowsDeleted()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of stale xdb ids deleted from RGD", Integer.toString(dao.getStaleRowsDeleted()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of matching xdb ids", Integer.toString(dao.getRowsMatched()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of inActiveGene", Integer.toString(qc.getInActiveGene()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of newActiveGene", Integer.toString(qc.getNewActiveGene()), PipelineLog.LOGPROP_TOTAL);
-        dbLogger.log("Number of unMatched", Integer.toString(qc.getUnMatched()), PipelineLog.LOGPROP_TOTAL);
-
-        dbLogger.log("Total Number of protein records in the source file: ", Integer.toString(fileParser.getTotRecord()), PipelineLog.LOGPROP_RECCOUNT);
-
-        fileParser.dumpXdbCounts(this.dataValidation.getActiveXdbIdMap());
+        fileParser.dumpXdbCounts(dataValidation.getActiveXdbIdMap(), logMain);
 
         long endMilisec=System.currentTimeMillis();
         runSec=endMilisec-startMilisec;
-        dbLogger.log("Process runtime length: ", Utils.formatElapsedTime(startMilisec, endMilisec), PipelineLog.LOGPROP_TOTAL);
     }
 
     public void writeSummary() throws Exception {

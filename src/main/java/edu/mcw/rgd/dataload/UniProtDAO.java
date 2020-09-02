@@ -4,7 +4,6 @@ import edu.mcw.rgd.dao.*;
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
@@ -18,8 +17,8 @@ import java.util.Map;
  */
 public class UniProtDAO extends AbstractDAO {
 
-    public final static String TREMBL = "/TrEMBL";
-    public final static String SWISSPROT = "/Swiss-Prot";
+    public final static String TREMBL = "UniProtKB/TrEMBL";
+    public final static String SWISSPROT = "UniProtKB/Swiss-Prot";
     public final static int OBJECT_KEY_PROTEIN_DOMAINS = 23;
 
     Logger logInsertedIds = Logger.getLogger("ids_inserted");
@@ -106,8 +105,8 @@ public class UniProtDAO extends AbstractDAO {
     public List<XdbId> getUniProtXdbIds(int rgdId, int speciesTypeKey) throws Exception {
 
         if( uniProtXdbIds.isEmpty() ) {
-            loadCacheOfUniProtXdbIds(PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.SWISSPROT, speciesTypeKey);
-            loadCacheOfUniProtXdbIds(PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.TREMBL, speciesTypeKey);
+            loadCacheOfUniProtXdbIds(UniProtDAO.SWISSPROT, speciesTypeKey);
+            loadCacheOfUniProtXdbIds(UniProtDAO.TREMBL, speciesTypeKey);
         }
 
         List<XdbId> xdbIds = uniProtXdbIds.get(rgdId);
@@ -120,11 +119,7 @@ public class UniProtDAO extends AbstractDAO {
         XdbId filter = new XdbId();
         filter.setSrcPipeline(srcPipeline);
         for( XdbId xdbId: xdbidDAO.getXdbIds(filter, speciesTypeKey) ) {
-            List<XdbId> xdbIds = uniProtXdbIds.get(xdbId.getRgdId());
-            if( xdbIds==null ) {
-                xdbIds = new ArrayList<>();
-                uniProtXdbIds.put(xdbId.getRgdId(), xdbIds);
-            }
+            List<XdbId> xdbIds = uniProtXdbIds.computeIfAbsent(xdbId.getRgdId(), k -> new ArrayList<>());
             xdbIds.add(xdbId);
         }
     }
@@ -292,11 +287,11 @@ public class UniProtDAO extends AbstractDAO {
     public void deleteStaleRows(int speciesTypeKey) throws Exception {
 
         // delete stale rows for SPROT pipeline
-        int rows = deleteStaleRows(PipelineLogger.PIPELINE_UNIPROT+SWISSPROT, speciesTypeKey);
+        int rows = deleteStaleRows(SWISSPROT, speciesTypeKey);
         UniProtDataLoadManager.getInstance().incrementCounter("stale rows deleted for SWISSPROT", rows);
 
         // delete stale rows for TREMBL pipeline
-        rows = deleteStaleRows(PipelineLogger.PIPELINE_UNIPROT+TREMBL, speciesTypeKey);
+        rows = deleteStaleRows(TREMBL, speciesTypeKey);
         UniProtDataLoadManager.getInstance().incrementCounter("stale rows deleted for TREMBL", rows);
     }
 

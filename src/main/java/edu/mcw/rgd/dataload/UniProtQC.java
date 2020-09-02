@@ -1,7 +1,6 @@
 package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.process.PipelineLogger;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 
@@ -15,7 +14,6 @@ import java.util.Map;
  */
 public class UniProtQC {
 
-    private PipelineLogger dbLog = PipelineLogger.getInstance();
     private UniProtDAO dao;
     private int speciesTypeKey;
     private int unMatched;
@@ -27,8 +25,8 @@ public class UniProtQC {
     static Logger logMain = Logger.getLogger("main");
 
     public UniProtQC() {
-        uniprotSources.add(PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.SWISSPROT);
-        uniprotSources.add(PipelineLogger.PIPELINE_UNIPROT+UniProtDAO.TREMBL);
+        uniprotSources.add(UniProtDAO.SWISSPROT);
+        uniprotSources.add(UniProtDAO.TREMBL);
     }
 
     public void qc(List<UniProtRatRecord> incomingRecords) throws Exception {
@@ -105,7 +103,7 @@ public class UniProtQC {
         // no match by NCBI Gene ID, no match on UniProt ID and no match on RefSeq ID
         unMatched++;
         incrementMatchCount("11. unmatched");
-        dbLog.addLogProp("no match for NCBI Gene ID, HGNC ID, MGI ID, UniProt ID, RefSeq ID, Ensembl ID or UniProt Gene Name", "UNMATCHED", data.getRecNo(), PipelineLogger.REC_FLAG, data.makeRecAsString());
+        // no match for NCBI Gene ID, HGNC ID, MGI ID, UniProt ID, RefSeq ID, Ensembl ID or UniProt Gene Name
         return false;
     }
 
@@ -134,12 +132,7 @@ public class UniProtQC {
                     rec.matchingRgdIds.add(activeRgdId);
                     activeRgdIdCount++;
                 }
-                dbLog.addLogProp(xdbName+":"+accId+"\tRGDID:"+activeRgdId, accId, rec.getRecNo(), PipelineLogger.REC_XDBID);
             }
-        }
-
-        if( activeRgdIdCount>1 ) {
-            dbLog.addLogProp("multiple "+xdbName+"s: "+ Utils.concatenate(rec.matchingRgdIds,","), "MULTI-"+xdbName, rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
         }
 
         if( activeRgdIdCount>0 ) {
@@ -170,7 +163,7 @@ public class UniProtQC {
             // LOG file: NEW_ACTIVE_RGDID
             if( isHistory ) {
                 newActiveGene++;
-                this.dbLog.addLogProp(rgdid+" is new active RGD_ID retrieved from RGD_ID_HISTORY", "NEW_ACTIVE_GENE", rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
+                // rgdid+" is new active RGD_ID retrieved from RGD_ID_HISTORY
             }
 
             return rgdid;
@@ -182,12 +175,12 @@ public class UniProtQC {
         // no active rgd_id found in rgd_id_history table
         if( newRgdId==0 ) {
             inActiveGene++;
-            this.dbLog.addLogProp(rgdid+" is not active and it does not have rgd id history", "INACTIVE_GENE", rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
+            // rgdid+" is not active and it does not have rgd id history
             return 0;
         }
         else {
             // check if rgdid pulled from history is active, and if not active check its history as well...
-            this.dbLog.addLogProp("inactive "+rgdid+" has rgd id history "+newRgdId, "GENE_WITH_HISTORY", rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
+            // "inactive "+rgdid+" has rgd id history "+newRgdId
             return getActiveRgdId(newRgdId, true, rec);
         }
     }
@@ -206,11 +199,10 @@ public class UniProtQC {
                 rec.matchingRgdIds.add(activeRgdId);
                 activeRgdIdCount++;
             }
-            dbLog.addLogProp("GN:"+rec.getGeneName()+"\tRGDID:"+activeRgdId, "GN", rec.getRecNo(), PipelineLogger.REC_XDBID);
         }
 
         if( activeRgdIdCount>1 ) {
-            dbLog.addLogProp("multiple GNs: "+ Utils.concatenate(rec.matchingRgdIds,","), "MULTI-"+rec.getGeneName(), rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
+            //dbLog.addLogProp("multiple GNs: "+ Utils.concatenate(rec.matchingRgdIds,","), "MULTI-"+rec.getGeneName(), rec.getRecNo(), PipelineLogger.REC_FLAG, rec.makeRecAsString());
         }
 
         if( activeRgdIdCount>0 ) {
