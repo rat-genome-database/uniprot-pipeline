@@ -122,4 +122,13 @@
         </property>
         <property name="srcPipeline" value="UniProtKB"/>
     </bean>
+
+    <bean id="swissProtFixer" class="edu.mcw.rgd.dataload.SwissProtFixer">
+        <property name="ids">
+            <map>
+                <entry key="P02489" value="735272"/> <!-- CRYAA -->
+                <entry key="A0A140G945" value="13440456"/> <!-- CRYAA2 -->
+            </map>
+        </property>
+    </bean>
 </beans>

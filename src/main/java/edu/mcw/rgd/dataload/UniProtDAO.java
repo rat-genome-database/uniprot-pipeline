@@ -3,6 +3,7 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.dao.*;
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
+import edu.mcw.rgd.dao.spring.RgdIdQuery;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
@@ -93,6 +94,14 @@ public class UniProtDAO extends AbstractDAO {
 
     public List<Gene> getGenesBySymbol(String geneSymbol, int speciesKey) throws Exception {
         return geneDAO.getAllGenesBySymbol(geneSymbol, speciesKey);
+    }
+
+    public List<XdbId> getXdbIds(int xdbKey, String accId, String srcPipeline) throws Exception {
+        XdbId filter = new XdbId();
+        filter.setXdbKey(xdbKey);
+        filter.setAccId(accId);
+        filter.setSrcPipeline(srcPipeline);
+        return xdbidDAO.getXdbIds(filter);
     }
 
     /**

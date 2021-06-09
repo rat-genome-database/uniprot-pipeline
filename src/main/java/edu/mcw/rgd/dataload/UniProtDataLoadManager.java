@@ -108,6 +108,11 @@ public class UniProtDataLoadManager {
                         DeletedAccessions module = (DeletedAccessions) (bf.getBean("deletedAccessions"));
                         module.run();
                         return;
+
+                    case "--swissProtFixer":
+                        SwissProtFixer swissProtFixer = (SwissProtFixer) (bf.getBean("swissProtFixer"));
+                        swissProtFixer.run();
+                        return;
                 }
             }
 

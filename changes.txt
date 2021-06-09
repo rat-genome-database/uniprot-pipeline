@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jun 09, 2021
+  deleted accessions: improved exception reporting
+
 Sep 02, 2020
   cleaned up code by removing PipelineLogger calls -- unused
 

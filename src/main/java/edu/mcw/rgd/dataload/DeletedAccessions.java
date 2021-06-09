@@ -26,6 +26,15 @@ public class DeletedAccessions {
     Logger log = Logger.getLogger("deleted_acc");
 
     public void run() throws Exception {
+        try {
+            _run();
+        } catch( Exception e ) {
+            Utils.printStackTrace(e, log);  // log the exception and rethrow it
+            throw e;
+        }
+    }
+
+    void _run() throws Exception {
 
         long time0 = System.currentTimeMillis();
         log.info("=== Starting module: Protein Deleted Accessions");
