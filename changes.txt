@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jun 10, 2021
+  deleted accessions: updated source url
+
 Jun 09, 2021
   deleted accessions: improved exception reporting
 

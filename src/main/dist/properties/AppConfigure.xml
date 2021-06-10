@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Sep 02, 2020" />
+        <property name="version" value="UniProtKB pipeline -- build Jun 10, 2021" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -98,8 +98,8 @@
     </bean>
 
     <bean id="deletedAccessions" class="edu.mcw.rgd.dataload.DeletedAccessions">
-        <property name="deletedSprotAccessionsFile" value="ftp://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/docs/delac_sp.txt"/>
-        <property name="deletedTremblAccessionsFile" value="ftp://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/docs/delac_tr.txt.gz"/>
+        <property name="deletedSprotAccessionsFile" value="ftp://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/complete/docs/delac_sp.txt"/>
+        <property name="deletedTremblAccessionsFile" value="ftp://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/complete/docs/delac_tr.txt.gz"/>
     </bean>
 
     <bean id="proteinDomainLoader" class="edu.mcw.rgd.dataload.ProteinDomainLoader">
