@@ -30,19 +30,13 @@ public class UniProtFileParser {
     List<UniProtRatRecord> incomingRecords = new ArrayList<>(1000);
 
     UniProtDataValidation dataValidation;
-    private Map<String,String> swissProtFileNames;
-    private Map<String,String> tremblFileNames;
+    private Map<Integer,String> swissProtFileNames;
+    private Map<Integer,String> tremblFileNames;
 
     public void setSpecies(int speciesTypeKey) {
 
-        String speciesCommonName = SpeciesType.getCommonName(speciesTypeKey);
-        if( speciesCommonName!=null  ) {
-            setFileName(getSwissProtFileNames().get(speciesCommonName));
-            setFileName2(getTremblFileNames().get(speciesCommonName));
-        } else {
-            setFileName(null);
-            setFileName2(null);
-        }
+        setFileName(getSwissProtFileNames().get(speciesTypeKey));
+        setFileName2(getTremblFileNames().get(speciesTypeKey));
 
         this.speciesTypeKey = speciesTypeKey;
         this.taxonid = SpeciesType.getTaxonomicId(speciesTypeKey);
@@ -352,19 +346,19 @@ public class UniProtFileParser {
         }
     }
 
-    public void setSwissProtFileNames(Map<String,String> swissProtFileNames) {
+    public void setSwissProtFileNames(Map<Integer,String> swissProtFileNames) {
         this.swissProtFileNames = swissProtFileNames;
     }
 
-    public Map<String,String> getSwissProtFileNames() {
+    public Map<Integer,String> getSwissProtFileNames() {
         return swissProtFileNames;
     }
 
-    public void setTremblFileNames(Map<String,String> tremblFileNames) {
+    public void setTremblFileNames(Map<Integer,String> tremblFileNames) {
         this.tremblFileNames = tremblFileNames;
     }
 
-    public Map<String,String> getTremblFileNames() {
+    public Map<Integer,String> getTremblFileNames() {
         return tremblFileNames;
     }
 
