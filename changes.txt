@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jul 06, 2021
+  fixed typo in config file; revamped species processing
+
 Jun 15, 2021
   improved species handling
 
