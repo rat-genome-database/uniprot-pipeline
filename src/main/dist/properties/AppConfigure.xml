@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Jul 06, 2021" />
+        <property name="version" value="UniProtKB pipeline -- build Dec 06, 2021" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -20,12 +20,12 @@
                 <entry key="2" value="uniprot_sprot_rodents.dat.gz"/><!-- mouse -->
                 <entry key="3" value="uniprot_sprot_rodents.dat.gz"/><!-- rat -->
                 <entry key="4" value="uniprot_sprot_rodents.dat.gz"/><!-- chinchilla -->
-                <entry key="5" value="uniprot_sprot_rodents.dat.gz"/><!-- bonobo -->
-                <entry key="6" value="uniprot_sprot_rodents.dat.gz"/><!-- dog -->
-                <entry key="7" value="uniprot_sprot_mammals.dat.gz"/><!-- squirrel -->
+                <entry key="5" value="uniprot_sprot_mammals.dat.gz"/><!-- bonobo -->
+                <entry key="6" value="uniprot_sprot_mammals.dat.gz"/><!-- dog -->
+                <entry key="7" value="uniprot_sprot_rodents.dat.gz"/><!-- squirrel -->
                 <entry key="9" value="uniprot_sprot_mammals.dat.gz"/><!-- pig -->
                 <entry key="13" value="uniprot_sprot_mammals.dat.gz"/><!-- vervet (green monkey)-->
-                <entry key="14" value="uniprot_sprot_mammals.dat.gz"/><!-- naked mole-rat -->
+                <entry key="14" value="uniprot_sprot_rodents.dat.gz"/><!-- naked mole-rat -->
             </map>
         </property>
         <property name="tremblFileNames">
@@ -34,12 +34,12 @@
                 <entry key="2" value="uniprot_trembl_rodents.dat.gz"/><!-- mouse -->
                 <entry key="3" value="uniprot_trembl_rodents.dat.gz"/><!-- rat -->
                 <entry key="4" value="uniprot_trembl_rodents.dat.gz"/><!-- chinchilla -->
-                <entry key="5" value="uniprot_trembl_rodents.dat.gz"/><!-- bonobo -->
-                <entry key="6" value="uniprot_trembl_rodents.dat.gz"/><!-- dog -->
-                <entry key="7" value="uniprot_trembl_mammals.dat.gz"/><!-- squirrel -->
+                <entry key="5" value="uniprot_trembl_mammals.dat.gz"/><!-- bonobo -->
+                <entry key="6" value="uniprot_trembl_mammals.dat.gz"/><!-- dog -->
+                <entry key="7" value="uniprot_trembl_rodents.dat.gz"/><!-- squirrel -->
                 <entry key="9" value="uniprot_trembl_mammals.dat.gz"/><!-- pig -->
                 <entry key="13" value="uniprot_trembl_mammals.dat.gz"/><!-- vervet (green monkey)-->
-                <entry key="14" value="uniprot_trembl_mammals.dat.gz"/><!-- naked mole-rat -->
+                <entry key="14" value="uniprot_trembl_rodents.dat.gz"/><!-- naked mole-rat -->
             </map>
         </property>
 
