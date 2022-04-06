@@ -4,7 +4,8 @@ import java.util.*;
 
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author mtutaj
@@ -14,7 +15,7 @@ public class UniProtDataValidation {
     UniProtDAO dbDao;
     java.util.Map<String,Integer> activeXdbIdMap;
     int speciesTypeKey;
-    Logger logMain = Logger.getLogger("main");
+    Logger logMain = LogManager.getLogger("main");
     private Map<Integer, UniProtRecord> records = new HashMap<>();
 
     /**

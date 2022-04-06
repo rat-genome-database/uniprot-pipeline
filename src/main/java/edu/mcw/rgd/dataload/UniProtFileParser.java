@@ -2,7 +2,8 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.process.*;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
@@ -23,7 +24,7 @@ public class UniProtFileParser {
     private int speciesTypeKey = SpeciesType.ALL;
     private int taxonid;
 
-    Logger logMain = Logger.getLogger("main");
+    Logger logMain = LogManager.getLogger("main");
 
     // map of counts of how many lines of particular database appears in the data
     Map<String, Integer> mapXdbCount = new HashMap<>(127);

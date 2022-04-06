@@ -6,12 +6,12 @@ import edu.mcw.rgd.process.CounterPool;
 import edu.mcw.rgd.process.Utils;
 import edu.mcw.rgd.process.mapping.MapManager;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -31,8 +31,8 @@ public class ProteinDomainLoader {
     private edu.mcw.rgd.datamodel.Map assembly; // current assembly being processed
     private int taxonid; // current taxonid
 
-    private Logger log = Logger.getLogger("domains");
-    private Logger logStrandProblem = Logger.getLogger("strand_problem");
+    private Logger log = LogManager.getLogger("domains");
+    private Logger logStrandProblem = LogManager.getLogger("strand_problem");
 
     private java.util.Map<Integer, List<ProteinDomain>> domainsMap = new HashMap<>();
     CounterPool counters;

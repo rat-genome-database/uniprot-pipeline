@@ -3,10 +3,10 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.dao.*;
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.dao.spring.IntStringMapQuery;
-import edu.mcw.rgd.dao.spring.RgdIdQuery;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.Map;
@@ -22,15 +22,15 @@ public class UniProtDAO extends AbstractDAO {
     public final static String SWISSPROT = "UniProtKB/Swiss-Prot";
     public final static int OBJECT_KEY_PROTEIN_DOMAINS = 23;
 
-    Logger logInsertedIds = Logger.getLogger("inserted");
-    Logger logDeletedIds = Logger.getLogger("deleted");
-    Logger logInsertedProteins = Logger.getLogger("proteins_inserted");
-    Logger logUpdatedProteins = Logger.getLogger("proteins_updated");
-    Logger logProteinsXdbIds = Logger.getLogger("proteins_xdb_ids");
-    Logger logDomainPos = Logger.getLogger("domain_pos");
-    Logger logAssociations = Logger.getLogger("associations");
-    Logger logAliases = Logger.getLogger("aliases");
-    Logger logSequences = Logger.getLogger("sequences");
+    Logger logInsertedIds = LogManager.getLogger("inserted");
+    Logger logDeletedIds = LogManager.getLogger("deleted");
+    Logger logInsertedProteins = LogManager.getLogger("proteins_inserted");
+    Logger logUpdatedProteins = LogManager.getLogger("proteins_updated");
+    Logger logProteinsXdbIds = LogManager.getLogger("proteins_xdb_ids");
+    Logger logDomainPos = LogManager.getLogger("domain_pos");
+    Logger logAssociations = LogManager.getLogger("associations");
+    Logger logAliases = LogManager.getLogger("aliases");
+    Logger logSequences = LogManager.getLogger("sequences");
 
     private AliasDAO aliasDAO = new AliasDAO();
     private AssociationDAO associationDAO = new AssociationDAO();

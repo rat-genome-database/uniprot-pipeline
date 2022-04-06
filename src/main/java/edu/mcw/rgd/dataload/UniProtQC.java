@@ -1,8 +1,8 @@
 package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.*;
-import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class UniProtQC {
     private List<String> uniprotSources = new ArrayList<>(2);
     private Map<String, Integer> matchXdbCount = new TreeMap<>();
 
-    static Logger logMain = Logger.getLogger("main");
+    static Logger logMain = LogManager.getLogger("main");
 
     public UniProtQC() {
         uniprotSources.add(UniProtDAO.SWISSPROT);

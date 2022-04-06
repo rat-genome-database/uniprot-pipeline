@@ -3,7 +3,8 @@ package edu.mcw.rgd.dataload;
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.log.RGDSpringLogger;
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -25,7 +26,7 @@ public class UniProtDataLoadManager {
     static long startMilisec=System.currentTimeMillis();
     static long runSec=0;
     RGDSpringLogger rgdLogger;
-    Logger logMain = Logger.getLogger("main");
+    Logger logMain = LogManager.getLogger("main");
 
     int speciesTypeKey;
     private String version;
