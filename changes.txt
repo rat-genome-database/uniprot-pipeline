@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Apr 06, 2022
+  updated log4j to avoid zero day exploit
+
 Dec 06, 2021
   fixed typos in config file (mixed up mammals with rodents)
 

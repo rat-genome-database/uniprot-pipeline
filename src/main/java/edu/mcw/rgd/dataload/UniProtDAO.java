@@ -22,8 +22,8 @@ public class UniProtDAO extends AbstractDAO {
     public final static String SWISSPROT = "UniProtKB/Swiss-Prot";
     public final static int OBJECT_KEY_PROTEIN_DOMAINS = 23;
 
-    Logger logInsertedIds = Logger.getLogger("ids_inserted");
-    Logger logDeletedIds = Logger.getLogger("ids_deleted");
+    Logger logInsertedIds = Logger.getLogger("inserted");
+    Logger logDeletedIds = Logger.getLogger("deleted");
     Logger logInsertedProteins = Logger.getLogger("proteins_inserted");
     Logger logUpdatedProteins = Logger.getLogger("proteins_updated");
     Logger logProteinsXdbIds = Logger.getLogger("proteins_xdb_ids");

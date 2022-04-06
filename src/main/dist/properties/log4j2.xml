@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- <PatternLayout pattern="%d{HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/> -->
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] %msg%n"/>
+        </Console>
+
+        <RollingFile name="main_summaries" append="true" fileName="logs/main_summaries.log" filePattern="logs/main_summaries.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="main_summary" append="false" fileName="logs/main_summary.log">
+            <PatternLayout pattern="%m%n"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+        <RollingFile name="main_debug" append="true" fileName="logs/main_debug.log" filePattern="logs/main_debug.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="deleted" append="true" fileName="logs/deleted.log" filePattern="logs/deleted.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="inserted" append="true" fileName="logs/inserted.log" filePattern="logs/inserted.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="proteins_inserted" append="true" fileName="logs/proteins_inserted.log" filePattern="logs/proteins_inserted.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="proteins_updated" append="true" fileName="logs/proteins_updated.log" filePattern="logs/proteins_updated.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="associations" append="true" fileName="logs/associations.log" filePattern="logs/associations.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="protein_xdb_ids" append="true" fileName="logs/protein_xdb_ids.log" filePattern="logs/protein_xdb_ids.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="aliases" append="true" fileName="logs/aliases.log" filePattern="logs/aliases.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="sequences" append="true" fileName="logs/sequences.log" filePattern="logs/sequences.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="strand_problem" append="true" fileName="logs/strand_problem.log" filePattern="logs/strand_problem.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="domain_pos" append="true" fileName="logs/domain_pos.log" filePattern="logs/domain_pos.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="deleted_acc_summaries" append="true" fileName="logs/deleted_acc_summaries.log" filePattern="logs/deleted_acc_summaries.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <File name="deleted_acc_summary" append="false" fileName="logs/deleted_acc_summary.log">
+            <PatternLayout pattern="%m%n"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+        </File>
+        <RollingFile name="deleted_acc" append="true" fileName="logs/deleted_acc.log" filePattern="logs/deleted_acc.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="domains" append="true" fileName="logs/domains.log" filePattern="logs/domains.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="domains_dbg" append="true" fileName="logs/domains_dbg.log" filePattern="logs/domains_dbg.log.%d{yyyy-MM}">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <!-- daily -->
+        <Logger name="main" level="debug" additivity="false">
+            <AppenderRef ref="main_summaries" level="info"/>
+            <AppenderRef ref="main_summary" level="info"/><!-- human readable -->
+            <AppenderRef ref="main_debug"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="deleted_acc" level="debug" additivity="true">
+            <AppenderRef ref="deleted_acc_summaries" level="info"/>
+            <AppenderRef ref="deleted_acc_summary" level="info"/><!-- human readable -->
+            <AppenderRef ref="deleted_acc"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+
+        <!-- monthly -->
+        <Logger name="deleted" level="debug" additivity="false">
+            <AppenderRef ref="deleted"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="inserted" level="debug" additivity="false">
+            <AppenderRef ref="inserted"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="proteins_inserted" level="debug" additivity="false">
+            <AppenderRef ref="proteins_inserted"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="proteins_updated" level="debug" additivity="false">
+            <AppenderRef ref="proteins_updated"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="associations" level="debug" additivity="false">
+            <AppenderRef ref="associations"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="protein_xdb_ids" level="debug" additivity="false">
+            <AppenderRef ref="protein_xdb_ids"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="aliases" level="debug" additivity="false">
+            <AppenderRef ref="aliases"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="sequences" level="debug" additivity="false">
+            <AppenderRef ref="sequences"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+        <Logger name="strand_problem" level="debug" additivity="false">
+            <AppenderRef ref="strand_problem"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="domains" level="debug" additivity="true">
+            <AppenderRef ref="domains" level="info"/>
+            <AppenderRef ref="domains_dbg"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="domain_pos" level="debug" additivity="false">
+            <AppenderRef ref="domain_pos"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+    </Loggers>
+</Configuration>
