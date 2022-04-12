@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Apr 06, 2022" />
+        <property name="version" value="UniProtKB pipeline -- build Apr 12, 2022" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -128,6 +128,15 @@
             <map>
                 <entry key="P02489" value="735272"/> <!-- CRYAA -->
                 <entry key="A0A140G945" value="13440456"/> <!-- CRYAA2 -->
+            </map>
+        </property>
+    </bean>
+
+    <bean id="canonicalProteins" class="edu.mcw.rgd.dataload.CanonicalProteins">
+        <property name="canonicalFiles">
+            <map>
+                <entry key="human" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000005640/UP000005640_9606.fasta.gz"/>
+                <entry key="rat" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000002494/UP000002494_10116.fasta.gz"/>
             </map>
         </property>
     </bean>

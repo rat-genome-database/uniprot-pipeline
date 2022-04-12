@@ -428,7 +428,13 @@ public class UniProtDAO extends AbstractDAO {
     }
 
     public void updateProteinUniProtId(Protein protein, String oldUniProtId) throws Exception {
-        logUpdatedProteins.info("RGD:"+protein.getRgdId()+"|OLD_UNIPROT_ID:"+oldUniProtId+"|NEW_UNIPROT_ID:"+protein.getUniprotId());
+        logUpdatedProteins.debug("RGD:"+protein.getRgdId()+"|OLD_UNIPROT_ID:"+oldUniProtId+"|NEW_UNIPROT_ID:"+protein.getUniprotId());
+        proteinDAO.updateProtein(protein);
+    }
+
+    public void updateProteinCanonicalStatus(Protein protein, boolean oldIsCanonical) throws Exception {
+        logUpdatedProteins.debug("RGD:"+protein.getRgdId()+"|UNIPROT_ID:"+protein.getUniprotId()
+                +"|OLD_IS_CANONICAL:"+(oldIsCanonical)+"|NEW_IS_CANONICAL:"+(protein.isCanonical()));
         proteinDAO.updateProtein(protein);
     }
 

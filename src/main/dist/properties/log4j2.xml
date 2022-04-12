@@ -83,6 +83,12 @@
                 <TimeBasedTriggeringPolicy interval="1"/>
             </Policies>
         </RollingFile>
+        <RollingFile name="canonical_proteins" append="true" fileName="logs/canonical_proteins.log" filePattern="logs/canonical_proteins.log.%d{yyyy-MM}">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+        </RollingFile>
 
         <RollingFile name="deleted_acc_summaries" append="true" fileName="logs/deleted_acc_summaries.log" filePattern="logs/deleted_acc_summaries.log.%d{yyyy-MM}">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c] - %m%n"/>
@@ -181,6 +187,11 @@
 
         <Logger name="domain_pos" level="debug" additivity="false">
             <AppenderRef ref="domain_pos"/>
+            <AppenderRef ref="Console" level="info"/>
+        </Logger>
+
+        <Logger name="canonical_proteins" level="debug" additivity="false">
+            <AppenderRef ref="canonical_proteins"/>
             <AppenderRef ref="Console" level="info"/>
         </Logger>
     </Loggers>

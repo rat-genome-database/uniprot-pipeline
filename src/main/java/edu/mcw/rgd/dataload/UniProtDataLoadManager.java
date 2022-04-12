@@ -69,6 +69,7 @@ public class UniProtDataLoadManager {
             boolean downloadOnly = false;
             int speciesTypeKey = SpeciesType.ALL;
             boolean loadProteinDomains = false;
+            boolean loadCanonicalProteins = false;
 
             for( int i=0; i<args.length; i++ ) {
                 // optional: only download source files
@@ -87,6 +88,7 @@ public class UniProtDataLoadManager {
                         fileName2 = args[++i];
                         break;
                     case "-species":
+                    case "--species":
                         if (i + 1 >= args.length) {
                             usage();
                             return;
@@ -105,6 +107,10 @@ public class UniProtDataLoadManager {
                         loadProteinDomains = true;
                         break;
 
+                    case "--loadCanonicalProteins":
+                        loadCanonicalProteins = true;
+                        break;
+
                     case "--deletedAccessions":
                         DeletedAccessions module = (DeletedAccessions) (bf.getBean("deletedAccessions"));
                         module.run();
@@ -120,6 +126,12 @@ public class UniProtDataLoadManager {
             if( loadRefSeq2UniprotMappings ) {
                 Refseq2UniprotLoader loader = (Refseq2UniprotLoader) (bf.getBean("RefSeq2UniProtLoader"));
                 loader.run();
+                return;
+            }
+
+            if( loadCanonicalProteins ) {
+                CanonicalProteins module = (CanonicalProteins) (bf.getBean("canonicalProteins"));
+                module.run(speciesTypeKey);
                 return;
             }
 
@@ -142,6 +154,7 @@ public class UniProtDataLoadManager {
                 module.run(dataManager.fileParser);
                 return;
             }
+
             dataManager.startPipeline(fileName, fileName2, speciesTypeKey);
         }
         catch( Exception e ) {

@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Apr 12, 2022
+  added loading of canonical proteins for rat and human
+
 Apr 06, 2022
   updated log4j to avoid zero day exploit
 
