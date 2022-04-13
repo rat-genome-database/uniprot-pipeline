@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Apr 12, 2022" />
+        <property name="version" value="UniProtKB pipeline -- build Apr 13, 2022" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -137,6 +137,13 @@
             <map>
                 <entry key="human" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000005640/UP000005640_9606.fasta.gz"/>
                 <entry key="rat" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000002494/UP000002494_10116.fasta.gz"/>
+                <entry key="mouse" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000000589/UP000000589_10090.fasta.gz"/>
+                <entry key="bonobo" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000240080/UP000240080_9597.fasta.gz"/>
+                <entry key="dog" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000002254/UP000002254_9615.fasta.gz"/>
+                <entry key="squirrel" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000005215/UP000005215_43179.fasta.gz"/>
+                <entry key="vervet" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000029965/UP000029965_60711.fasta.gz"/>
+                <entry key="molerat" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000006813/UP000006813_10181.fasta.gz"/>
+                <entry key="pig" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000008227/UP000008227_9823.fasta.gz"/>
             </map>
         </property>
     </bean>
