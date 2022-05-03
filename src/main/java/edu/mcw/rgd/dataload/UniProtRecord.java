@@ -20,7 +20,7 @@ public class UniProtRecord {
         this.activeXdbIdMap = activeXdbIdMap;
     }
 
-    public void init(int rgdId, UniProtRatRecord rec) throws Exception {
+    public void init(int rgdId, UniProtRatRecord rec) {
         setRgdId(rgdId);
 
         // build list of XdbIds (not duplicates) ready for insertion
@@ -42,7 +42,7 @@ public class UniProtRecord {
     }
 
     // convert external database name, as found in the source file, to XDB_KEY value, as found in RGD_XDB table
-    int getXdbKeyFromXdbName(String xdbName) throws Exception {
+    int getXdbKeyFromXdbName(String xdbName) {
 
         Integer xdbKey = activeXdbIdMap.get(xdbName);
         if( xdbKey!=null )
@@ -53,16 +53,15 @@ public class UniProtRecord {
     }
 
     // set up properties of new XdbId object (never null)
-    XdbId addXdbId(int rgdId, int xdbkey, String accid, String textlink, String uniProtAccId, String srcPipeline) throws Exception {
+    XdbId addXdbId(int rgdId, int xdbkey, String accid, String textlink, String uniProtAccId, String srcPipeline) {
 
         XdbId xdbId = new XdbId();
         xdbId.setAccId(accid.trim());
         xdbId.setRgdId(rgdId);
         xdbId.setXdbKey(xdbkey);
-        if(textlink==null)
-            xdbId.setLinkText(accid);
-        else
+        if( textlink!=null ) {
             xdbId.setLinkText(textlink);
+        }
         xdbId.setSrcPipeline(srcPipeline);
 
         Date currentDate = new Date();

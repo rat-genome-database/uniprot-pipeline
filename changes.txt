@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+May 03, 2022
+  minor change how to load xdb ids
+
 Apr 13, 2022
   added loading of canonical proteins for all species hosted in RGD
 
