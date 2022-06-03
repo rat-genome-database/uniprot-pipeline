@@ -77,7 +77,7 @@ public class Refseq2UniprotLoader {
         FileDownloader downloader = new FileDownloader();
         downloader.setExternalFile(getMappingsFile());
         downloader.setLocalFile("data/gene_refseq_uniprotkb.txt.gz");
-        downloader.setAppendDateStamp(true);
+        downloader.setPrependDateStamp(true);
         return downloader.downloadNew();
     }
 

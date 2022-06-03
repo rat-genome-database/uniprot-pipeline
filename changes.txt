@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jun 03, 2022
+  unified naming for downloaded files
+
 May 03, 2022
   minor change how to load xdb ids
 
