@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jan 26, 2023
+  updated build.gradle to be gradle 6.x + compatible
+
 Jun 03, 2022
   unified naming for downloaded files
 
