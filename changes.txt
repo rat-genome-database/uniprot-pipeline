@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jun 20, 2023
+  protein domains: added rn7 to list of processed assemblies
+
 Jan 26, 2023
   updated build.gradle to be gradle 6.x + compatible
 

@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Jan 26, 2023" />
+        <property name="version" value="UniProtKB pipeline -- build Jun 20, 2023" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -108,6 +108,7 @@
                 <value>60</value><!--rat 3.4-->
                 <value>70</value><!-- rn5 -->
                 <value>360</value><!-- rn6 -->
+                <value>372</value><!-- rn7 -->
                 <value>17</value><!-- GRCh37 -->
                 <value>38</value><!-- GRCh38 -->
                 <value>18</value><!-- GRCm37 -->
