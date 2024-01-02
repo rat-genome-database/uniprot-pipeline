@@ -126,7 +126,7 @@
             <AppenderRef ref="Console"/>
         </Root>
         <!-- daily -->
-        <Logger name="main" level="debug" additivity="false">
+        <Logger name="main" level="info" additivity="false">
             <AppenderRef ref="main_summaries" level="info"/>
             <AppenderRef ref="main_summary" level="info"/><!-- human readable -->
             <AppenderRef ref="main_debug"/>

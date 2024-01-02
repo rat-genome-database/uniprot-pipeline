@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Jan 02, 2023
+  updated dependencies to java 17
+
 Jun 22, 2023
   protein domains: added mm39 (GRCm39) to list of processed assemblies
 
