@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
-Jan 02, 2023
+Mar 22, 2024
+  protein domains: added new assemblies: GRCr8 for rat, and 3 assemblies for bonobo
+
+Jan 02, 2024
   updated dependencies to java 17
 
 Jun 22, 2023
