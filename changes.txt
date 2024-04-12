@@ -1,4 +1,7 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Apr 12, 2024
+  reference proteome: fixed source url for dog
+
 Mar 22, 2024
   protein domains: added new assemblies: GRCr8 for rat, and 3 assemblies for bonobo
 
