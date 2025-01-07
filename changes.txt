@@ -1,6 +1,6 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 Jan 07, 2025
-  updated dependencies
+  removed unused logger 'protein_xdb_ids'
 
 Apr 12, 2024
   reference proteome: fixed source url for dog
