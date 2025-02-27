@@ -1,9 +1,11 @@
 package edu.mcw.rgd.dataload;
 
+import java.io.BufferedWriter;
 import java.util.*;
 
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
+import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,6 +40,16 @@ public class UniProtDataValidation {
                 rec.init(activeRgdId, incomingRec);
             }
         }
+
+        BufferedWriter outlog = Utils.openWriter("/tmp/load.log");
+        for( Map.Entry<Integer,UniProtRecord> entry: records.entrySet() ) {
+            outlog.write("===\n");
+            outlog.write("RGD:"+entry.getKey());
+
+            UniProtRecord r = entry.getValue();
+            outlog.write( r.fullDump() );
+        }
+        outlog.close();
     }
 
     public void load() throws Exception {

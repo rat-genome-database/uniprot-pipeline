@@ -82,4 +82,16 @@ public class UniProtRecord {
     public List<XdbId> getXdbIds() {
         return xdbIds;
     }
+
+    public String fullDump() {
+        StringBuffer buf = new StringBuffer();
+        buf.append("   RGD:"+rgdId+"\n");
+        buf.append("   activeXdbIdMap\n");
+        buf.append(activeXdbIdMap.toString());
+        buf.append("   xdb ids\n");
+        for( XdbId id: xdbIds ) {
+            buf.append("     "+id.dump("|")+"\n");
+        }
+        return buf.toString();
+    }
 }
