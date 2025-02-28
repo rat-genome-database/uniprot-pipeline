@@ -41,7 +41,19 @@ public class UniProtDataValidation {
             }
         }
 
+        int trembleEntriesRemoved = 0;
+        for( Map.Entry<Integer,UniProtRecord> entry: records.entrySet() ) {
+
+            UniProtRecord r = entry.getValue();
+            if( r.hasSwissProt() ) {
+                trembleEntriesRemoved += r.removeTremblDerivedData();
+            }
+        }
+        logMain.info("   SwissProt: trembl entries removed: "+Utils.formatThousands(trembleEntriesRemoved));
+
+
         BufferedWriter outlog = Utils.openWriter("/tmp/load.log");
+
         for( Map.Entry<Integer,UniProtRecord> entry: records.entrySet() ) {
             outlog.write("===\n");
             outlog.write("RGD:"+entry.getKey());

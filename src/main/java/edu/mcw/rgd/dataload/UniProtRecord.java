@@ -83,11 +83,40 @@ public class UniProtRecord {
         return xdbIds;
     }
 
+    public boolean hasSwissProt() {
+
+        for( XdbId id: xdbIds ) {
+            if( id.getXdbKey()==XdbId.XDB_KEY_UNIPROT  &&  id.getSrcPipeline().equals(UniProtDAO.SWISSPROT) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int removeTremblDerivedData() {
+
+        int removeCount = 0;
+        Iterator<XdbId> it = xdbIds.iterator();
+        while( it.hasNext() ) {
+
+            XdbId id = it.next();
+            if( id.getSrcPipeline().equals(UniProtDAO.TREMBL) ) {
+
+                // don't remove Uniprot trembl ids
+                if( id.getXdbKey() != XdbId.XDB_KEY_UNIPROT ) {
+                    it.remove();
+                    removeCount++;
+                }
+            }
+        }
+        return removeCount;
+    }
+
     public String fullDump() {
         StringBuffer buf = new StringBuffer();
         buf.append("   RGD:"+rgdId+"\n");
         buf.append("   activeXdbIdMap\n");
-        buf.append(activeXdbIdMap.toString());
+        buf.append(activeXdbIdMap.toString()+"\n");
         buf.append("   xdb ids\n");
         for( XdbId id: xdbIds ) {
             buf.append("     "+id.dump("|")+"\n");
