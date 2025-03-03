@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Jan 07, 2025" />
+        <property name="version" value="UniProtKB pipeline -- build Mar 03, 2025" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -77,7 +77,12 @@
                 <entry key="UniProt" value="14"/>
                 <entry key="UniProtSecondary" value="60"/>
             </map>
-        </property>                                    
+        </property>
+
+        <property name="skipTremblDataIfSwissProtAvailable" value="true"/>
+
+        <!-- if set to empty, no debug file will be created -->
+        <property name="dbgAllDataFile" value="loadAllData.log"/>
 	</bean>
 
     <bean id="proteinLoader" class="edu.mcw.rgd.dataload.ProteinLoader">

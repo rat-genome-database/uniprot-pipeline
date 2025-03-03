@@ -19,13 +19,15 @@ public class UniProtDataValidation {
     int speciesTypeKey;
     Logger logMain = LogManager.getLogger("main");
     private Map<Integer, UniProtRecord> records = new HashMap<>();
+    private boolean skipTremblDataIfSwissProtAvailable;
+    private String dbgAllDataFile = null;
 
     /**
      * assign incoming data to matching rgd ids;
      * note: a set of incoming data could be assigned to multiple active rgd ids
      * @param incomingRecords
      */
-    public void mergeIncomingRecords(List<UniProtRatRecord> incomingRecords) throws Exception {
+    public void mergeIncomingRecords(List<UniProtRatRecord> incomingRecords) {
 
         for( UniProtRatRecord incomingRec: incomingRecords ) {
 
@@ -41,27 +43,36 @@ public class UniProtDataValidation {
             }
         }
 
-        int trembleEntriesRemoved = 0;
-        for( Map.Entry<Integer,UniProtRecord> entry: records.entrySet() ) {
+        if( this.isSkipTremblDataIfSwissProtAvailable() ) {
 
-            UniProtRecord r = entry.getValue();
-            if( r.hasSwissProt() ) {
-                trembleEntriesRemoved += r.removeTremblDerivedData();
+            int trembleEntriesRemoved = 0;
+            for (Map.Entry<Integer, UniProtRecord> entry : records.entrySet()) {
+
+                UniProtRecord r = entry.getValue();
+                if (r.hasSwissProt()) {
+                    trembleEntriesRemoved += r.removeTremblDerivedData();
+                }
+            }
+            logMain.info("   SwissProt present: trembl entries removed: " + Utils.formatThousands(trembleEntriesRemoved));
+        }
+
+        if( !Utils.isStringEmpty(getDbgAllDataFile()) ) {
+
+            try( BufferedWriter outlog = Utils.openWriter(getDbgAllDataFile()) ) {
+
+                for (Map.Entry<Integer, UniProtRecord> entry : records.entrySet()) {
+                    outlog.write("===\n");
+                    outlog.write("RGD:" + entry.getKey());
+
+                    UniProtRecord r = entry.getValue();
+                    outlog.write(r.fullDump());
+                }
+
+            } catch( Exception e ) {
+                logMain.warn(" WARNING! problem opening log file "+getDbgAllDataFile());
+                Utils.printStackTrace(e, logMain);
             }
         }
-        logMain.info("   SwissProt: trembl entries removed: "+Utils.formatThousands(trembleEntriesRemoved));
-
-
-        BufferedWriter outlog = Utils.openWriter("/tmp/load.log");
-
-        for( Map.Entry<Integer,UniProtRecord> entry: records.entrySet() ) {
-            outlog.write("===\n");
-            outlog.write("RGD:"+entry.getKey());
-
-            UniProtRecord r = entry.getValue();
-            outlog.write( r.fullDump() );
-        }
-        outlog.close();
     }
 
     public void load() throws Exception {
@@ -146,5 +157,21 @@ public class UniProtDataValidation {
 
     public void setSpeciesTypeKey(int speciesTypeKey) {
         this.speciesTypeKey = speciesTypeKey;
+    }
+
+    public boolean isSkipTremblDataIfSwissProtAvailable() {
+        return skipTremblDataIfSwissProtAvailable;
+    }
+
+    public void setSkipTremblDataIfSwissProtAvailable(boolean skipTremblDataIfSwissProtAvailable) {
+        this.skipTremblDataIfSwissProtAvailable = skipTremblDataIfSwissProtAvailable;
+    }
+
+    public String getDbgAllDataFile() {
+        return dbgAllDataFile;
+    }
+
+    public void setDbgAllDataFile(String dbgAllDataFile) {
+        this.dbgAllDataFile = dbgAllDataFile;
     }
 }

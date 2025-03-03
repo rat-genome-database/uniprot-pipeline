@@ -1,4 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
+Mar 03, 2025
+  loader: when SwissProta is present, Trembl data is suppressed -- only UniProt Trembl accessions are loaded
+  loader: debug: added an option to dump all data processed by the loader, to a file
+
 Jan 07, 2025
   removed unused logger 'protein_xdb_ids'
 
