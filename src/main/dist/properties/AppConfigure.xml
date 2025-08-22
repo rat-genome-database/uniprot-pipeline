@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="UniProtKB pipeline -- build Mar 03, 2025" />
+        <property name="version" value="UniProtKB pipeline -- build Aug 22, 2025" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -26,6 +26,7 @@
                 <entry key="9" value="uniprot_sprot_mammals.dat.gz"/><!-- pig -->
                 <entry key="13" value="uniprot_sprot_mammals.dat.gz"/><!-- vervet (green monkey)-->
                 <entry key="14" value="uniprot_sprot_rodents.dat.gz"/><!-- naked mole-rat -->
+                <entry key="17" value="uniprot_sprot_rodents.dat.gz"/><!-- black-rat -->
             </map>
         </property>
         <property name="tremblFileNames">
@@ -40,6 +41,7 @@
                 <entry key="9" value="uniprot_trembl_mammals.dat.gz"/><!-- pig -->
                 <entry key="13" value="uniprot_trembl_mammals.dat.gz"/><!-- vervet (green monkey)-->
                 <entry key="14" value="uniprot_trembl_rodents.dat.gz"/><!-- naked mole-rat -->
+                <entry key="17" value="uniprot_trembl_rodents.dat.gz"/><!-- black-rat -->
             </map>
         </property>
 
