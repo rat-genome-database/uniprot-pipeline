@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+Oct 24, 2025
+  parser: fixed species type processing
+  
 Aug 22, 2025
   added black rat (Rattus Rattus)
 

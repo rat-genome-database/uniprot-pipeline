@@ -45,6 +45,11 @@ public class ProteinLoader {
                 protein = insertProtein(rec);
                 manager.incrementCounter("  proteins inserted: ");
             } else {
+                if( protein.getSpeciesTypeKey()!=getSpeciesTypeKey() ) {
+                    logMain.error("*** wrong protein species for "+protein.getUniprotId());
+                    manager.incrementCounter("  proteins skipped : ");
+                    continue;
+                }
                 manager.incrementCounter("  proteins matched : ");
             }
 

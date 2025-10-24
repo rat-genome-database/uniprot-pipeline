@@ -90,7 +90,7 @@ public class UniProtFileParser {
         String uniprotAC = null;
         UniProtRatRecord rec = new UniProtRatRecord(srcPipeline);
         int recNo = 0;
-        boolean speciesIsCorrect = true;
+        boolean speciesIsCorrect = false;
         String lineOX = ""; // can span multiple lines
 
         while ((line=reader.readLine()) != null) {
@@ -129,6 +129,8 @@ public class UniProtFileParser {
                 lineOX += line; // OX can span multiple lines ...
                 if( parseTaxonId(lineOX) == this.taxonid ) {
                     speciesIsCorrect = true;
+                } else {
+                    speciesIsCorrect = false;
                 }
                 continue;
             }
