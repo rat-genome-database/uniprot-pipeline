@@ -3,7 +3,7 @@
 # wrapper script
 #
 . /etc/profile
-APPNAME=UniProtPipeline
+APPNAME='uniprot-pipeline'
 
 APPDIR=/home/rgddata/pipelines/$APPNAME
 cd $APPDIR

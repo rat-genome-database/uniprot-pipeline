@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+Apr 07, 2026
+  renamed distro to 'uniprot-pipeline'
+
 Oct 24, 2025
   parser: fixed species type processing
 

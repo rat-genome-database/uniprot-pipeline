@@ -1,6 +1,6 @@
 # for PROTEIN objects, load corresponding RefSeq accession ids
 #
-APP_HOME=/home/rgddata/pipelines/UniProtPipeline
+APP_HOME='/home/rgddata/pipelines/uniprot-pipeline'
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 EMAIL_LIST=mtutaj@mcw.edu
 if [ "$SERVER" = "REED" ]; then

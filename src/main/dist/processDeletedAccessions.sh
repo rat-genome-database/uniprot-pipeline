@@ -2,7 +2,7 @@
 # validate them against protein objects in RGD
 # and withdraw the protein objects in RGD that became deleted at UniProtKB
 #
-APP_HOME=/home/rgddata/pipelines/UniProtPipeline
+APP_HOME='/home/rgddata/pipelines/uniprot-pipeline'
 SERVER=`hostname -s | tr '[a-z]' '[A-Z]'`
 EMAIL_LIST=mtutaj@mcw.edu
 if [ "$SERVER" = "REED" ]; then
