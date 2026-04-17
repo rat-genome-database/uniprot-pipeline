@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+Apr 17, 2026
+  added memory usage monitoring; updated dependencies
+
 Apr 07, 2026
   renamed distro to 'uniprot-pipeline'
 

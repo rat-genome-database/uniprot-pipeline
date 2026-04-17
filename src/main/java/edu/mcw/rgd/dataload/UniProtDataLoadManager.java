@@ -2,6 +2,7 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.SpeciesType;
 import edu.mcw.rgd.log.RGDSpringLogger;
+import edu.mcw.rgd.process.MemoryMonitor;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,6 +62,9 @@ public class UniProtDataLoadManager {
         manager.logMain.info(dataManager.getVersion());
 
         manager.logMain.info("   "+dataManager.dao.getConnectionInfo());
+
+        MemoryMonitor memoryMonitor = new MemoryMonitor();
+        memoryMonitor.start();
 
         boolean loadRefSeq2UniprotMappings = false;
 
@@ -158,8 +162,11 @@ public class UniProtDataLoadManager {
             dataManager.startPipeline(fileName, fileName2, speciesTypeKey);
         }
         catch( Exception e ) {
-            e.printStackTrace();
+            Utils.printStackTrace(e, manager.logMain);
             throw e;
+        } finally {
+            memoryMonitor.stop();
+            manager.logMain.info(memoryMonitor.getSummary());
         }
     }
 
