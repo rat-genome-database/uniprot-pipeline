@@ -1,5 +1,8 @@
 TODO: combine two pipeline logs into one: the current logic is too complicated
 
+Jun 4, 2026
+  switched to FileDownloader2 and moved all sources to https (fixes molerat canonical-proteins download: UniProt dropped UP000006813, now UP000694906); dropped commons-net/httpclient deps; updated dependencies
+
 Apr 17, 2026
   added memory usage monitoring; updated dependencies
 

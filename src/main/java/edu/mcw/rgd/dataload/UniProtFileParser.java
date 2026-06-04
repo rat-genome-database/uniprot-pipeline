@@ -73,8 +73,8 @@ public class UniProtFileParser {
      */
     public String download(String fname) throws Exception {
 
-        FileDownloader downloader = new FileDownloader();
-        downloader.setExternalFile("ftp://"+ftpServer+ftpDirectory+"/"+fname);
+        FileDownloader2 downloader = new FileDownloader2();
+        downloader.setExternalFile("https://"+ftpServer+ftpDirectory+"/"+fname);
         downloader.setLocalFile("data/"+fname);
         downloader.setPrependDateStamp(true);
         return downloader.downloadNew();

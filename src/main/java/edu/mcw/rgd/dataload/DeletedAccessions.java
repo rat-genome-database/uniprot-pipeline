@@ -2,7 +2,7 @@ package edu.mcw.rgd.dataload;
 
 import edu.mcw.rgd.datamodel.Protein;
 import edu.mcw.rgd.datamodel.SpeciesType;
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,7 +46,7 @@ public class DeletedAccessions {
         List<String> delAccList = new ArrayList<>();
 
         // download files
-        FileDownloader fd = new FileDownloader();
+        FileDownloader2 fd = new FileDownloader2();
         fd.setUseCompression(true);
         fd.setPrependDateStamp(true);
 

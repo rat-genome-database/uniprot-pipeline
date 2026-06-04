@@ -6,7 +6,7 @@
 	    <property name="dataValidation" ref="dataValidation"/>
 	    <property name="uniProtDAO" ref="dbDao" />
 	    <property name="rgdLogger" ref="rgdLogger"/>
-        <property name="version" value="uniprot-pipeline -- build Apr 17, 2026" />
+        <property name="version" value="uniprot-pipeline -- build Jun 4, 2026" />
         <property name="proteinLoader" ref="proteinLoader" />
 	</bean>
 	
@@ -100,13 +100,13 @@
     </bean>
 
     <bean id="RefSeq2UniProtLoader" class="edu.mcw.rgd.dataload.Refseq2UniprotLoader">
-        <property name="mappingsFile" value="ftp://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz"/>
+        <property name="mappingsFile" value="https://ftp.ncbi.nlm.nih.gov/gene/DATA/gene_refseq_uniprotkb_collab.gz"/>
         <property name="srcPipeline" value="refseq_uniprotkb"/>
     </bean>
 
     <bean id="deletedAccessions" class="edu.mcw.rgd.dataload.DeletedAccessions">
-        <property name="deletedSprotAccessionsFile" value="ftp://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/complete/docs/delac_sp.txt"/>
-        <property name="deletedTremblAccessionsFile" value="ftp://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/complete/docs/delac_tr.txt.gz"/>
+        <property name="deletedSprotAccessionsFile" value="https://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/complete/docs/delac_sp.txt"/>
+        <property name="deletedTremblAccessionsFile" value="https://ftp.uniprot.org/pub/databases/uniprot/knowledgebase/complete/docs/delac_tr.txt.gz"/>
     </bean>
 
     <bean id="proteinDomainLoader" class="edu.mcw.rgd.dataload.ProteinDomainLoader">
@@ -161,7 +161,7 @@
                 <entry key="dog" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000805418/UP000805418_9615.fasta.gz"/>
                 <entry key="squirrel" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000005215/UP000005215_43179.fasta.gz"/>
                 <entry key="vervet" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000029965/UP000029965_60711.fasta.gz"/>
-                <entry key="molerat" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000006813/UP000006813_10181.fasta.gz"/>
+                <entry key="molerat" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000694906/UP000694906_10181.fasta.gz"/>
                 <entry key="pig" value="https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/reference_proteomes/Eukaryota/UP000008227/UP000008227_9823.fasta.gz"/>
             </map>
         </property>

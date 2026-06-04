@@ -4,7 +4,7 @@ import edu.mcw.rgd.dao.impl.ProteinDAO;
 import edu.mcw.rgd.datamodel.Protein;
 import edu.mcw.rgd.datamodel.RgdId;
 import edu.mcw.rgd.datamodel.XdbId;
-import edu.mcw.rgd.process.FileDownloader;
+import edu.mcw.rgd.process.FileDownloader2;
 import edu.mcw.rgd.process.Utils;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -74,7 +74,7 @@ public class Refseq2UniprotLoader {
     }
 
     String downloadFileWithMappings() throws Exception {
-        FileDownloader downloader = new FileDownloader();
+        FileDownloader2 downloader = new FileDownloader2();
         downloader.setExternalFile(getMappingsFile());
         downloader.setLocalFile("data/gene_refseq_uniprotkb.txt.gz");
         downloader.setPrependDateStamp(true);
